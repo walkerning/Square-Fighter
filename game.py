@@ -19,6 +19,7 @@ PILE_NUMBER = 21
 SIZE = 14
 NeighborVectors = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 CrossVectors = [(1, 1), (1, -1), (-1, -1), (-1, 1)]
+PileSquareNumberList = (1, 2, 3)
 PileMaxManhattanList = (1, 2, 3)
 PileRotateList = (
     ( tuple(), ),
@@ -47,15 +48,6 @@ PileRotateList = (
 # --------------------------------------------------
 
 # --------------- class definitions ----------------
-class PileType:
-    """
-    define types of pile
-    """
-    def __init__(self, index):
-        self.rotateList = PileRotateList[index]
-        self.squareNumber = Number[index]
-    def __getitem__(self, index):
-        return self.rotateList.__getitem__(index)
 
 class Agent:
     """
@@ -120,9 +112,9 @@ class GridBoard:
         return listr
 
 class GameStateData:
-    def __init__(self):
+    def __init__(self, size = SIZE):
         self.leftPileList = [range(PILE_NUMBER), range(PILE_NUMBER)]
-        self.boardData = GridBoard(SIZE)
+        self.boardData = GridBoard(size)
 
     def generateNextStateData(self, index, action):
         pileIndex, squarePos, rotateIndex = action
@@ -155,6 +147,10 @@ class GameState:
         leftPiles = self.getLeftPiles(index)
         availGridList, impoGridSet = self._getAvailableAndImportantGrids(index)
         legalActions = []
+
+        if len(leftPiles) == PILE_NUMBER: # Begining of the game
+            impoGridSet = set([(0,0)]) if index == 0 else set([(self.data.boardData.size - 1, self.data.boardData.size - 1)])
+
         if not impoGridSet:
             return legalActions
         for pileIndex in leftPiles:
@@ -165,7 +161,7 @@ class GameState:
                     positionList = map(lambda p: (pos[0] + p[0], pos[1] + p[1]), PileRotateList(rotateIndex))
                     if set(positionList).issubset(availGridList) and impoGridSet.intersection(set(positionList)):
                         legalActions.append((pileIndex, pos, rotateIndex))
-
+        self.legalActions = legalActions
         return legalActions
 
     def getLeftPiles(self, index):
@@ -173,18 +169,17 @@ class GameState:
 
     def generateSuccessor(self, index, action):
         """Check the legality of the specific action of player <index>, if it's legal generate the successor state"""
-        pileIndex, squarePos, rotateIndex = action
-        if pileIndex not in self.getLeftPiles(index):
+        if action not in self.getLegalActions():
             printIllegalMove()
             return self
         successor = GameState(self)
         successor.data._generateNextStateData(index, action)
         return successor
 
-    # --- helper functions ---
+    # --- helper function ---
     def _getAvailableAndImportantGrids(self, index):
         """Get all the grids that the player <index> can place a squre on. Get the list of import grids of player <index>, in which a legal placement must cover at least one"""
-        board = self.data.boardState.deepCopy()
+        board = self.data.boardData.deepCopy()
         playerList = board.asList(index)
         importantGridSet = set()
 
@@ -205,7 +200,7 @@ class GameState:
 
         return board.asList(board.EMPTY), importantGridSet
 
-    # -----------End helper functions------------
+    # -----------End helper function------------
 
 
 # ----------------------End Class Definition----------------------------
