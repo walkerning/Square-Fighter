@@ -1,0 +1,10 @@
+# gitignore
+# python
+*.py[cod]
+
+# emacs temporary
+*~
+[#]*[#]
+.\#*
+
+# other dict or files
