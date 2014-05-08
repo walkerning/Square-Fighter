@@ -1,74 +1,90 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# The game runner
 
-import game
 import AIagents
+import game
+import gameRunner
 
-class Game:
-    """
-    Game class encapsulate the rule of the square fighter game.
-    """
-    TIE = -1
-    WIN0 = 0
-    WIN1 = 1
-    def __init__(self, agents, record = False):
-        self.nowState = game.GameState()
-        self.agents = agents
-        self.canMove = [True, True]
-        self.index = 0
-        self.isFinished = False
-        self.record = record
-        self.recordList = []
-
-    def reset(self):
-        self.nowState = game.GameState()
-        self.canMove = [True, True]
-        self.index = 0
-        self.isFinished = False
-        self.record = []
-
-    def nextPlayer(self):
-        for tmpIndex in [(self.index + i) % len(self.agents) for i in range(1, len(self.agents) + 1)]:
-            tmpIndex = (self.index + 1) % len(self.agents)
-            if self.canMove[tmpIndex] and self.nowState.getLegalActions(tmpIndex):
-                self.index = tmpIndex
-                return True
-        return False
-
-    def generateSuccessor(self, action):
-        self.nowState, correct= self.nowState.generateSuccessor(self.index, action)
-        if self.record:
-            self.recordList.append((self.index, action, correct, self.nowState))
-        if not self.nextPlayer():
-            self.isFinished = True
-
-    def calculateSquare(self, pileIndexList):
-        sqNum = 0
-        for index in pileIndexList:
-            sqNum += game.PileSquareNumberList[index]
-        return sqNum
-
-    def settlement(self):
-        self.leftSquares = map(lambda index: self.calculateSquare(self.nowState.getLeftPiles(index)), [0, 1])
-        minNum = min(self.leftSquares)
-        self.winner = [x for x in [0, 1] if self.leftSquares[x] == minNum]
-        if len(self.winner) == 2:
-            self.result = Game.TIE
-        else:
-            self.result = self.winner[0]
-        if self.record:
-            self.recordList.append(('result', self.result, self.leftSquares))
-
-    def startGame(self):
-        while not self.isFinished:
-            self.generateSuccessor(self.agents[self.index].getAction(self.nowState))
-        self.settlement()
+def default(string):
+    return string + ' [Default: %default] '
 
 # 解析命令行参数
-def ParseArgument():
-    pass
+def ParseCommand(argv):
+    from optparse import OptionParser
+
+    # 命令行参数
+    parser = OptionParser('')
+
+    parser.add_option('-n', '--numGames', dest='numGames', type='int',
+                      help=default('the number of GAMES to play'), metavar='GAMES', default=1)
+    parser.add_option('--a1', '--agent1', dest='agent1', type='str',
+                      help=default("agent1's name"), metavar='AGENTNAME',default='defaultAgent')
+    parser.add_option('--a2', '--agent2', dest='agent2', type='str',
+                      help=default("agent2's name"), metavar='AGENTNAME',default='defaultAgent')
+    parser.add_option('-s', '--switch', action='store_true', dest='switch', help='play 2*n times with switching order')
+    parser.add_option('-r', '--record', action='store_true', dest='record',
+  help='Store replay files.', default=False)
+
+    options, junk = parser.parse_args(argv)
+    if len(junk) != 0:
+        raise Exception('Command line input not understood: ' + str(junk))
+    args = dict()
+    args['record'] = options.record
+    args['numGames'] = options.numGames
+    args['agents'] = (options.agent1, options.agent2)
+    args['switch'] = options.switch
+
+    return args
+
+def runGames(agents, numGames, record, switch):
+    games = []
+
+    agentList = []
+    for i in range(len(agents)):
+        agent = agents[i]
+        if not hasattr(AIagents, agent) or not hasattr(getattr(AIagents, agent), 'getAction'):
+            printAgentError(agent)
+            agent = "defaultAgent"
+        agentList.append(getattr(AIagents, agent)(i))
+
+    for i in range(numGames):
+        game = gameRunner.Game(agentList, True)
+        game.startGame()
+        result = game.recordList[-1]
+        if result[1] == -1:
+            resultStr = "Tie!"
+        else:
+            resultStr = "agent%d Win!"%(result[1] + 1)
+        print "No.%d: agent1 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
+
+        if record:
+            import time, cPickle
+            filename = "%dtimes-"%numGames + "%s-vs-%s"%tuple([x.__class__.__name__ for x in agentList]) + time.strftime('%m-%d-%H-%M-%S',time.localtime(time.time())) + ".rep"
+            f = file(filename, 'w')
+            cPickle.dump(game.recordList, f)
+            f.close()
+
+    if switch:
+        agentList = [agentList[1].__class__(0), agentList[0].__class__(1)]
+        for i in range(numGames):
+            game = gameRunner.Game(agentList, True)
+            game.startGame()
+            result = game.recordList[-1]
+            if result[1] == -1:
+                resultStr = "Tie!"
+            else:
+                resultStr = "agent%d Win!"%(2 - result[1])
+                print "No.%d: agent2 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][1], result[-1][0])
+
+            if record:
+                import time, cPickle
+                filename = "%dtimes-"%numGames + "%s-vs-%s"%tuple([x.__class__.__name__ for x in agentList]) + time.strftime('%m-%d-%H-%M-%S',time.localtime(time.time())) + ".rep"
+                f = file(filename, 'w')
+                cPickle.dump(game.recordList, f)
+                f.close()
 
 if __name__ == "__main__":
     # run game!
-    pass
+    import sys
+    args = ParseCommand(sys.argv[1:])
+    runGames(**args)

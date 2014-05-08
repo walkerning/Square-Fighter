@@ -7,6 +7,10 @@
 def raiseNotDefined():
     print "Method not implemented: %s" % inspect.stack()[1][3]
     sys.exit(1)
+
+def printAgentError(agent):
+    print "%s seems not to be a legal agent with the getAction method!Default agent used."%agent
+
 def printIllegalMove():
     print "Your placement is illegal"
 

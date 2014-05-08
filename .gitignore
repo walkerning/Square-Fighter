@@ -11,6 +11,6 @@
 ui/*
 
 # data files
-rep/*
+replayfiles/*
 *.rep
 *.data

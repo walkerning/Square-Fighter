@@ -4,7 +4,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import squareFighter as SF
+import gameRunner
 import AIagents
 from ui.ui_aivsai import Ui_GameWindow
 from UireplayWidget import ReplayWidget
@@ -12,10 +12,10 @@ from functools import partial
 import cPickle
 
 
-class GameThread(QThread, SF.Game):
+class GameThread(QThread, gameRunner.Game):
     def __init__(self, agents, parent = None):
         QThread.__init__(self, parent)
-        SF.Game.__init__(self, agents, True)
+        gameRunner.Game.__init__(self, agents, True)
 
         self.mutex = QMutex()
         self.__stop = False
