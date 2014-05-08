@@ -9,4 +9,8 @@
 
 # ui files
 ui/*
-# other dict or files
+
+# data files
+rep/*
+*.rep
+*.data

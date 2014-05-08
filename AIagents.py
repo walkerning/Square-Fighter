@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # AI agents
 
-class Agent:
+class Agent(object):
     """
     An agent must define the getAction method which will be called with a GameState argument.
     The getAction method should return an action, which is a three-element tuple (pileIndex, squarePos, rotateIndex)
@@ -13,8 +13,16 @@ class Agent:
         self.index = index
 
     def getAction(self, gameState):
+
         raiseNotDefined()
 
+class stupidAgent(Agent):
+    def getAction(self, gameState):
+        return gameState.getLegalActions(self.index)[0]
 
+class stupidRandomAgent(Agent):
+    def getAction(self, gameState):
+        import random
+        return random.choice(gameState.getLegalActions(self.index))
 
-defaultAgent = Agent
+defaultAgent = stupidAgent

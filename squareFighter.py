@@ -3,7 +3,7 @@
 # The game runner
 
 import game
-import agents
+import AIagents
 
 class Game:
     """
@@ -29,7 +29,7 @@ class Game:
         self.record = []
 
     def nextPlayer(self):
-        for tmpIndex in [(self.index + i) % len(self.agents) for i in range(1, len(agents) + 1)]:
+        for tmpIndex in [(self.index + i) % len(self.agents) for i in range(1, len(self.agents) + 1)]:
             tmpIndex = (self.index + 1) % len(self.agents)
             if self.canMove[tmpIndex] and self.nowState.getLegalActions(tmpIndex):
                 self.index = tmpIndex
@@ -38,8 +38,8 @@ class Game:
 
     def generateSuccessor(self, action):
         self.nowState, correct= self.nowState.generateSuccessor(self.index, action)
-        if self.record and correct:
-            self.recordList.append((index, action))
+        if self.record:
+            self.recordList.append((self.index, action, correct, self.nowState))
         if not self.nextPlayer():
             self.isFinished = True
 
@@ -50,7 +50,7 @@ class Game:
         return sqNum
 
     def settlement(self):
-        self.leftSquares = map(lambda index: calculateSquare(self.nowState.getLeftPiles(index)), [0, 1])
+        self.leftSquares = map(lambda index: self.calculateSquare(self.nowState.getLeftPiles(index)), [0, 1])
         minNum = min(self.leftSquares)
         self.winner = [x for x in [0, 1] if self.leftSquares[x] == minNum]
         if len(self.winner) == 2:
@@ -62,7 +62,7 @@ class Game:
 
     def startGame(self):
         while not self.isFinished:
-            self.generateSuccessor(self.index, self.agents[self.index].getAction(self.nowState))
+            self.generateSuccessor(self.agents[self.index].getAction(self.nowState))
         self.settlement()
 
 # 解析命令行参数
