@@ -49,20 +49,6 @@ PileRotateList = (
 
 # --------------- class definitions ----------------
 
-class Agent:
-    """
-    An agent must define the getAction method which will be called with a GameState argument.
-    The getAction method should return an action, which is a three-element tuple (pileIndex, squarePos, rotateIndex)
-    The pileIndex refer to the index of the pile that will be placed; it's a integer.
-    The squarePos refer to the position on the board of the reference square of the specific pile; it's a two-int-tuple.
-    The rotateIndex refer to the index of the rotation of the pile; it's a integer.
-    """
-    def __init__(self, index):
-        self.index = index
-
-    def getAction(self, gameState):
-        raiseNotDefined()
-
 class GridBoard:
     """
     棋盘
@@ -171,10 +157,13 @@ class GameState:
         """Check the legality of the specific action of player <index>, if it's legal generate the successor state"""
         if action not in self.getLegalActions():
             printIllegalMove()
-            return self
+            return self, False
         successor = GameState(self)
-        successor.data._generateNextStateData(index, action)
-        return successor
+        correct = successor.data.generateNextStateData(index, action)
+        if correct:
+            return successor, True
+        else:
+            return self, False
 
     # --- helper function ---
     def _getAvailableAndImportantGrids(self, index):

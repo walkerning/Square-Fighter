@@ -3,6 +3,7 @@
 # The game runner
 
 import game
+import agents
 
 class Game:
     """
@@ -11,18 +12,21 @@ class Game:
     TIE = -1
     WIN0 = 0
     WIN1 = 1
-    def __init__(self, agents):
+    def __init__(self, agents, record = False):
         self.nowState = game.GameState()
         self.agents = agents
         self.canMove = [True, True]
         self.index = 0
         self.isFinished = False
+        self.record = record
+        self.recordList = []
 
     def reset(self):
         self.nowState = game.GameState()
         self.canMove = [True, True]
         self.index = 0
         self.isFinished = False
+        self.record = []
 
     def nextPlayer(self):
         for tmpIndex in [(self.index + i) % len(self.agents) for i in range(1, len(agents) + 1)]:
@@ -33,7 +37,9 @@ class Game:
         return False
 
     def generateSuccessor(self, action):
-        self.nowState = self.nowState.generateSuccessor(self.index, action)
+        self.nowState, correct= self.nowState.generateSuccessor(self.index, action)
+        if self.record and correct:
+            self.recordList.append((index, action))
         if not self.nextPlayer():
             self.isFinished = True
 
@@ -51,11 +57,9 @@ class Game:
             self.result = Game.TIE
         else:
             self.result = self.winner[0]
+        if self.record:
+            self.recordList.append(('result', self.result, self.leftSquares))
 
-def GameRunner(Game):
-    """
-    Non-Gui game runner.
-    """
     def startGame(self):
         while not self.isFinished:
             self.generateSuccessor(self.index, self.agents[self.index].getAction(self.nowState))

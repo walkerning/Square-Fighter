@@ -7,4 +7,6 @@
 [#]*[#]
 .\#*
 
+# ui files
+ui/*
 # other dict or files
