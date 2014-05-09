@@ -53,8 +53,6 @@ class GameRunnerGui(QWidget, Ui_GameWindow):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-        self.game = None
-
         # Gui initialize
         self.agentEdits = [self.agentEdit1, self.agentEdit2]
         self.replayWidget = ReplayWidget()
