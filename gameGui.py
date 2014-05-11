@@ -65,6 +65,9 @@ class GameRunnerGui(QWidget, Ui_GameWindow):
         self.connect(self.saveRecordButton, SIGNAL("clicked()"), self.saveGame)
         self.connect(self.endButton, SIGNAL("clicked()"), self.endGame)
         self.connect(self.replayButton, SIGNAL("clicked()"), self.replayGame)
+        self.connect(self.pauseButton, SIGNAL("toggled(bool)"), self.replayWidget, SLOT("Pause(bool)"))
+        self.connect(self.debugCheck, SIGNAL("toggled(bool)"), self.replayWidget, SLOT("setShowDebug(bool)"))
+        self.connect(self.nextRoundButton, SIGNAL("clicked()"), self.replayWidget.NextRound)
 
     def startGame(self):
         self.resultLabel.setText("")

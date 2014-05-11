@@ -25,4 +25,7 @@ class stupidRandomAgent(Agent):
         import random
         return random.choice(gameState.getLegalActions(self.index))
 
+class stupidReverseAgent(Agent):
+    def getAction(self, gameState):
+        return gameState.getLegalActions(self.index)[-1]
 defaultAgent = stupidAgent
