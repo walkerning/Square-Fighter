@@ -9,6 +9,7 @@
 
 # ui files
 ui/*
+!ui/*.ui
 
 # data files
 replayfiles/*

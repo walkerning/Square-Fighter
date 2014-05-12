@@ -4,9 +4,10 @@
 
 # --------- some help functions for all ------------
 
-def raiseNotDefined():
-    print "Method not implemented: %s" % inspect.stack()[1][3]
-    sys.exit(1)
+def printNotDefined():
+    import traceback
+    inspect = traceback.extract_stack()
+    print "Method not implemented: %s"%inspect[-2][2]
 
 def printAgentError(agent):
     print "%s seems not to be a legal agent with the getAction method!Default agent used."%agent

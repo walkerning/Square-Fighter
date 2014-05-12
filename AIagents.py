@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # AI agents
 
+from game import printNotDefined
+
 class Agent(object):
     """
     An agent must define the getAction method which will be called with a GameState argument.
@@ -13,7 +15,6 @@ class Agent(object):
         self.index = index
 
     def getAction(self, gameState):
-
         raiseNotDefined()
 
 class stupidAgent(Agent):
@@ -28,4 +29,6 @@ class stupidRandomAgent(Agent):
 class stupidReverseAgent(Agent):
     def getAction(self, gameState):
         return gameState.getLegalActions(self.index)[-1]
+
+
 defaultAgent = stupidAgent
