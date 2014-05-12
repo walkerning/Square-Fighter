@@ -8,7 +8,7 @@ import game
 
 SIZE = 14
 COLOR_LIST = [(255, 0, 0), (0, 0, 255), (255, 255, 255)]
-DEBUG_COLOR_LIST = [(244, 164, 96, 150), (127, 255, 0, 90)]
+DEBUG_COLOR_LIST = [(244, 164, 96, 120), (127, 255, 0, 90)]
 UNIT_WIDTH = 30
 EDGE_WIDTH = 2
 ANI_TIME = 500
@@ -67,6 +67,7 @@ class ReplayWidget(QGraphicsView):
         self.recordList = []
         self.unitList = []
         self.debugUnitList = []
+        self.aniUnitList = []
         self.setScene(QGraphicsScene(self))
 
         self.isPaused = False
@@ -77,6 +78,7 @@ class ReplayWidget(QGraphicsView):
 
     def loadRecord(self, record):
         self.recordList = record
+        self.round = 0
 
     def _setInitialState(self, state):
         gridBoardData = state.data.boardData
@@ -107,7 +109,6 @@ class ReplayWidget(QGraphicsView):
 
 
     def GoToRound(self, roundn):
-        print "Gotoround called", roundn
         self._TerminateAni()
         if not self.recordList:
             return
@@ -119,38 +120,32 @@ class ReplayWidget(QGraphicsView):
             self._resetState()
             self._setInitialState(game.GameState())
         else:
-            print "setState", roundn
             self._setState(self.recordList[roundn - 1][-1])
+        self._resetDebug()
         if self._showdebug:
             self._ShowDebug()
-        else:
-            self._resetDebug()
+
 
     @pyqtSlot(bool)
     def Pause(self, value):
         self.isPaused = value
-        if value and self.recordList and self.round:
-            self.GoToRound(self.round)
-        else:
-            self.Play(self.round)
+        self.Play(self.round)
 
     @pyqtSlot(bool)
     def setShowDebug(self, value):
         self._showdebug = value
-        if value and self.recordList and self.round:
+        self._resetDebug()
+        if value and self.recordList:
             self._ShowDebug()
-        if not value:
-            self._resetDebug()
 
     def _ShowDebug(self):
         self._resetDebug()
         if self.round == len(self.recordList) - 1:
             return
         if self.round == 0:
-            state = GameState()
+            state = game.GameState()
         else:
             state = self.recordList[self.round - 1][-1]
-        print self.round, self.recordList[self.round][0]
         availGrids, impoGrids = state._getAvailableAndImportantGrids(self.recordList[self.round][0])
         for pos in impoGrids:
             unit = GridUnit(DEBUG_COLOR_LIST[0])
@@ -184,6 +179,7 @@ class ReplayWidget(QGraphicsView):
             return
         self.animation = self._PlaceAnimation(index, action)
         self.connect(self.animation, SIGNAL("finished()"), self.animation, SLOT("deleteLater()"))
+        self.connect(self.animation, SIGNAL("finished()"), self._resetAni)
         if not self.isPaused:
             self.connect(self.animation, SIGNAL("finished()"), partial(self.Play, roundn + 1))
         self.animation.start()
@@ -199,6 +195,7 @@ class ReplayWidget(QGraphicsView):
             unit = self.scene().items(GetPos(squarePos[0] + lpos[0], squarePos[1] + lpos[1]))[-1]
             unit.setColor(color)
             unit.setOpacity(0)
+            self.aniUnitList.append(unit)
             tmp_ani = QPropertyAnimation(unit, "opacity")
             tmp_ani.setDuration(ANI_TIME)
             tmp_ani.setStartValue(0)
@@ -213,8 +210,12 @@ class ReplayWidget(QGraphicsView):
             self.animation.stop()
             self.animation.deleteLater()
             self.animation = None
+        self._resetAni()
 
-
+    def _resetAni(self):
+        for item in self.aniUnitList:
+            item.setOpacity(1)
+        self.aniUnitList = []
 
 #for test:
 if __name__ == "__main__":

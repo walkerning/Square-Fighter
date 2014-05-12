@@ -143,9 +143,6 @@ class GameState:
         availGridList, impoGridSet = self._getAvailableAndImportantGrids(index)
         legalActions = []
 
-        if len(leftPiles) == PILE_NUMBER: # Begining of the game
-            impoGridSet = set([(0,0)]) if index == 0 else set([(self.data.boardData.size - 1, self.data.boardData.size - 1)])
-
         if not impoGridSet:
             return legalActions
         for pileIndex in leftPiles:
@@ -175,6 +172,7 @@ class GameState:
     # --- helper function ---
     def _getAvailableAndImportantGrids(self, index):
         """Get all the grids that the player <index> can place a squre on. Get the list of import grids of player <index>, in which a legal placement must cover at least one"""
+        leftPiles = self.getLeftPiles(index)
         board = self.data.boardData.deepCopy()
         playerList = board.asList(index)
         importantGridSet = set()
@@ -193,6 +191,9 @@ class GameState:
                     continue
                 if board[pos[0]][pos[1]] == board.EMPTY:
                     importantGridSet.add(pos)
+
+        if len(leftPiles) == PILE_NUMBER: # Begining of the game
+            importantGridSet = set([(0,0)]) if index == 0 else set([(self.data.boardData.size - 1, self.data.boardData.size - 1)])
 
         return board.asList(board.EMPTY), importantGridSet
 
