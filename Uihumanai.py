@@ -11,3 +11,5 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
     def __init__(self, parent = None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+
+        self.replayWidget = ReplayWidgetWithHuman()

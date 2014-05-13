@@ -15,3 +15,4 @@ ui/*
 replayfiles/*
 *.rep
 *.data
+images/*
