@@ -1,6 +1,7 @@
 # gitignore
 # python
 *.py[cod]
+!__init__.py
 
 # emacs temporary
 *~
