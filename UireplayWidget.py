@@ -220,6 +220,13 @@ class ReplayWidget(QGraphicsView):
 
 
 class ReplayWidgetWithHuman(ReplayWidget):
+    def __init__(self, parent = None):
+        super(ReplayWidgetWithHuman, self).__init__(parent)
+
+
+    def setHumanPlayer(self, human):
+        pass
+
 
 #for test:
 if __name__ == "__main__":
