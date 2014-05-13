@@ -30,6 +30,7 @@ class GridUnit(QGraphicsObject):
 
     def setPos(self, x, y):
         QGraphicsObject.setPos(self, GetPos(x, y))
+        self.position = (x, y)
 
     def setColor(self, color):
         self.color = color
@@ -216,6 +217,9 @@ class ReplayWidget(QGraphicsView):
         for item in self.aniUnitList:
             item.setOpacity(1)
         self.aniUnitList = []
+
+
+class ReplayWidgetWithHuman(ReplayWidget):
 
 #for test:
 if __name__ == "__main__":

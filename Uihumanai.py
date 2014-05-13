@@ -3,6 +3,7 @@
 # 实现可以每方是由人操作还是由AI操作的界面
 
 from gui import UiTabWidget
+from UireplayWidget import ReplayWidgetWithHuman
 from ui.humanai import Ui_GameWindow
 
 PLAYERS = [0, 0]
