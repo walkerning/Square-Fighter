@@ -226,19 +226,20 @@ class ReplayWidgetWithHuman(ReplayWidget):
     def __init__(self, parent = None):
         super(ReplayWidgetWithHuman, self).__init__(parent)
 
-        self.players = [False, False]
         self.pileList = [[0, 0], [0, 0]]
         self.inAction = False
+        self.actionUnitList = []
         self.nowPlayIndex = 0
-
-    def startGame(self, players):
-        self.players = players
+        self.setMouseTracking(True)
+        self.basePosList = [tuple(), tuple()]
 
     def beginAction(self, playerIndex):
+        print "beginAction call"
         self.nowPlayIndex = playerIndex
         self.inAction = True
 
-    def setCurrentPile(playerIndex, pileIndex):
+    def setCurrentPile(self, playerIndex, pileIndex):
+        print "set current pile"
         self.pileList[playerIndex][0] = pileIndex
         self.pileList[playerIndex][1] = 0
 
@@ -249,7 +250,11 @@ class ReplayWidgetWithHuman(ReplayWidget):
             if isinstance(item, GridUnit):
                 basePos = item.position
                 action = (self.pileList[self.nowPlayIndex][0], basePos, self.pileList[self.nowPlayIndex][1])
-                if action  in self.recordList[-1][-1].getLegalAction(self.nowPlayIndex):
+                if len(self.recordList) == 1:
+                    state = game.GameState()
+                else:
+                    state = self.recordList[-2][-1]
+                if action  in state.getLegalActions(self.nowPlayIndex):
                     self.inAction = False
                     self.emit(SIGNAL("actionMade"), action)
 
@@ -257,7 +262,16 @@ class ReplayWidgetWithHuman(ReplayWidget):
 
     def keyPressEvent(self, event):
         if self.inAction and event.key() == Qt.Key_Space:
-            self.pileList[self.nowPlayIndex][1] = (self.pileList[self.nowPlayIndex] + 1) % len(game.PileRotateList[self.pileList[self.nowPlayIndex][0]])
+            self.pileList[self.nowPlayIndex][1] = (self.pileList[self.nowPlayIndex][1] + 1) % len(game.PileRotateList[self.pileList[self.nowPlayIndex][0]])
+            basePos = self.basePosList[self.nowPlayIndex]
+            self._resetActionUnit()
+            pileIndex, rotateIndex = self.pileList[self.nowPlayIndex]
+            for rel in game.PileRotateList[pileIndex][rotateIndex]:
+                position = (basePos[0] + rel[0], basePos[1] + rel[1])
+                item = GridUnit(ACTION_COLOR_LIST[self.nowPlayIndex])
+                item.setPos(position[0], position[1])
+                self.scene().addItem(item)
+                self.actionUnitList.append(item)
 
         ReplayWidget.keyPressEvent(self, event)
 
@@ -274,11 +288,12 @@ class ReplayWidgetWithHuman(ReplayWidget):
             if isinstance(item, GridUnit):
                 self._resetActionUnit()
                 basePos = item.position
+                self.basePosList[self.nowPlayIndex] = basePos
                 pileIndex, rotateIndex = self.pileList[self.nowPlayIndex]
                 for rel in game.PileRotateList[pileIndex][rotateIndex]:
                     position = (basePos[0] + rel[0], basePos[1] + rel[1])
                     item = GridUnit(ACTION_COLOR_LIST[self.nowPlayIndex])
-                    item.setPos(position)
+                    item.setPos(position[0], position[1])
                     self.scene().addItem(item)
                     self.actionUnitList.append(item)
 
