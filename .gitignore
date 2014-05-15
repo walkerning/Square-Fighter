@@ -1,6 +1,7 @@
 # gitignore
 # python
 *.py[cod]
+!__init__.py
 
 # emacs temporary
 *~
@@ -16,3 +17,4 @@ replayfiles/*
 *.rep
 *.data
 images/*
+gui/images/*

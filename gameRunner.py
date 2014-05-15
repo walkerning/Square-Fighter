@@ -28,10 +28,12 @@ class Game:
 
     def nextPlayer(self):
         for tmpIndex in [(self.index + i) % len(self.agents) for i in range(1, len(self.agents) + 1)]:
-            tmpIndex = (self.index + 1) % len(self.agents)
-            if self.canMove[tmpIndex] and self.nowState.getLegalActions(tmpIndex):
-                self.index = tmpIndex
-                return True
+            if self.canMove[tmpIndex]:
+                if self.nowState.getLegalActions(tmpIndex):
+                    self.index = tmpIndex
+                    return True
+                else:
+                    self.canMove[tmpIndex] = False
         return False
 
     def generateSuccessor(self, action):
