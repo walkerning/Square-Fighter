@@ -9,8 +9,8 @@ from UireplayWidget import ReplayWidgetWithHuman
 from ui.ui_humanai import Ui_GameWindow
 import gameRunner
 import AIagents
+import cPickle
 
-PLAYERS = [0, 0]
 WaitForAction = QWaitCondition()
 
 class GameThread(QThread, gameRunner.Game):
