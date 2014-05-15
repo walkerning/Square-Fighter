@@ -3,7 +3,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-ITEM_PICS = [':item%d'%x for x in range(21)]
+ITEM_PICS = ['gui/images/pile%d.png'%x for x in range(21)]
 
 ITEM_INI_ROINDEX = []
 
@@ -21,13 +21,17 @@ class Ui_TabWidget(QTabWidget):
         self.addTab(widget1, "4")
         self.addTab(widget2, "5")
         for widget in self.widgets:
-            #print widget.metaObject().indexOfSignal("itemPressed")
+            #print widget.metaObject().indexOfSignal("currentItemChanged(QListWidgetItem*,QListWidgetItem*)")
             #self.connect(widget, SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.on_currentItemChanged)
             self.connect(widget, SIGNAL("itemSelectionChanged()"), self.on_currentItemChanged)
 
     def on_currentItemChanged(self):
-        pileIndex = self.sender().currentItem().data(SquareListWidget.PILE_INDEX_ROLE).toInt()
-        self.emit(SIGNAL("currentPileChanged"), pileIndex[0])
+        currentItem = self.sender().currentItem()
+        if currentItem:
+            pileIndex = currentItem.data(SquareListWidget.PILE_INDEX_ROLE).toInt()[0]
+        else:
+            pileIndex = -1
+        self.emit(SIGNAL("currentPileChanged"), pileIndex)
 
     def removePile(self, pileIndex):
         if pileIndex < 4:
@@ -52,9 +56,6 @@ class Ui_TabWidget(QTabWidget):
         for widget in self.widgets:
             self.connect(widget, SIGNAL("itemSelectionChanged()"), self.on_currentItemChanged)
 
-
-
-
     def setSelectionMode(self, mode):
         if mode == 1:
             for widget in self.widgets:
@@ -73,11 +74,11 @@ class SquareListWidget(QListWidget):
 
         self.itemDict = {}
         for i in _list:
-            item = QListWidgetItem(QIcon(QPixmap(ITEM_PICS[i])), QString("pile%d"%i),self)
+            item = QListWidgetItem(QIcon(QPixmap(QDir.toNativeSeparators(ITEM_PICS[i]))), QString("pile%d"%i),self)
             item.setData(self.PILE_INDEX_ROLE, i)
             self.itemDict[i] = item
             #item.setData(ROTATE_INDEX_ROLE, ITEM_INI_ROINDEX[i])
 
     def removePile(self, pileIndex):
-        item =  self.removeItemWidget(self.itemDict[pileIndex])
+        item = self.takeItem(self.row(self.itemDict[pileIndex]))
         del item

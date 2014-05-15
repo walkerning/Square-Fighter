@@ -15,7 +15,7 @@ WaitForAction = QWaitCondition()
 
 class GameThread(QThread, gameRunner.Game):
     recordRecv = pyqtSignal([tuple])
-    def __init__(self, agents, players, parent = None):
+    def __init__(self, agents, players, func, parent = None):
         QThread.__init__(self, parent)
         gameRunner.Game.__init__(self, agents, True)
 
@@ -23,6 +23,7 @@ class GameThread(QThread, gameRunner.Game):
         self.__stop = False
         self.action = None
         self.players = players
+        self.func = func
 
     def stop(self):
         try:
@@ -40,10 +41,6 @@ class GameThread(QThread, gameRunner.Game):
 
     def run(self):
         while not self.isFinished and not self.isStopped():
-
-            #self.generateSuccessor(self.agents[self.index].getAction(self.nowState))
-            #print "index:", self.index,"action:", action
-            print "new loop"
             if not self.players[self.index]:
                 self.action = self.agents[self.index].getAction(self.nowState)
             else:
@@ -53,13 +50,15 @@ class GameThread(QThread, gameRunner.Game):
                 self.mutex.unlock()
             if not self.isStopped():
                 self.generateSuccessor(self.action)
-                self.recordRecv.emit(self.recordList[-1])
-
+                #self.recordRecv.emit(self.recordList[-1])
+                self.emit(SIGNAL("recordRecv"), self.recordList[-1])
+                #self.func(self.recordList[-1])
         if not self.isStopped():
             self.settlement()
             self.emit(SIGNAL("gameFinished"), self.recordList)
 
 class GameRunnerWithHuman(QWidget, Ui_GameWindow):
+    #class EventFilter(QEventFilter:
     def __init__(self, parent = None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
@@ -88,9 +87,7 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
         self.connect(self.endButton, SIGNAL("clicked()"), self.endGame)
         self.connect(self.saveRecordButton, SIGNAL("clicked()"), self.saveGame)
 
-
     def startGame(self):
-        print "start game"
         self.players[0] = self.playerCheck1.isChecked()
         self.players[1] = self.playerCheck2.isChecked()
         for i in range(len(self.pileListWidgets)):
@@ -117,12 +114,13 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
             self.agentList.append(agent)
             agentList.append(getattr(AIagents, agent)(self.agentEdits.index(agentEdit)))
 
-        self.gameThread = GameThread(agentList, self.players)
+        self.gameThread = GameThread(agentList, self.players, self.on_recordRecv)
         self.connect(self.gameThread, SIGNAL("humanAction(int)"), self.replayWidget.beginAction)
         self.connect(self.gameThread, SIGNAL("gameFinished"), self.on_gameFinished)
-        #self.connect(self.gameThread, SIGNAL("recordRecv(PyQt_PyObject)"), self.on_recordRecv, Qt.DirectConnection)
+        self.connect(self.gameThread, SIGNAL("recordRecv"), self.on_recordRecv)
+
+        #self.gameThread.recordRecv[tuple].connect(self.on_recordRecv, Qt.BlockingQueuedConnection)
         #self.gameThread.recordRecv[tuple].connect(self.on_recordRecv, Qt.DirectConnection)
-        #self.gameThread.recordRecv.connect(self.on_recordRecv, Qt.DirectConnection)
         self.connect(self.gameThread, SIGNAL("finished()"), self.gameThread, SLOT("deleteLater()"))
 
         # for test;
@@ -132,21 +130,18 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
         self.startButton.setEnabled(False)
         self.endButton.setEnabled(True)
         self.replayWidget.recordList = [tuple()]
-        self.replayWidget.grabKeyboard()
         self.replayWidget.GoToRound(0)
-        print "gameThread start"
         self.gameThread.start()
 
     def endGame(self):
-        print "endgame call"
         if self.gameThread.isRunning():
             self.gameThread.stop()
             WaitForAction.wakeAll()
             self.gameThread.wait()
             self.gameThread.deleteLater()
+
         self.endButton.setEnabled(False)
         self.startButton.setEnabled(True)
-        self.replayWidget.releaseKeyboard()
 
     def saveGame(self):
         self.saveRecordButton.setEnabled(False)
@@ -157,19 +152,16 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
         f.close()
 
     def on_currentPileChanged(self, pileIndex):
-        print "pile changed", pileIndex
         sender = self.sender()
         if not sender in self.pileListWidgets:
             return
         playerIndex = self.pileListWidgets.index(sender)
         if not self.players[playerIndex]:
-            print "oh my god"
             return
         self.replayWidget.setCurrentPile(playerIndex, pileIndex)
 
     def on_recordRecv(self, record):
-        print "recorRecv"
-        self.replayWidget.recordList.insert(0, record)
+        self.replayWidget.recordList.insert(-1, record)
         self.replayWidget.GoToRound(len(self.replayWidget.recordList) - 1)
         self.pileListWidgets[record[0]].removePile(record[1][0])
 
@@ -182,7 +174,6 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
         self.leftSquareLabel2.setText("%d"%result[-1][1])
 
     def on_gameFinished(self, recordList):
-        print "gamefinshed called"
         self.saveRecordButton.setEnabled(True)
         self.endButton.setEnabled(False)
         self.startButton.setEnabled(True)
@@ -193,7 +184,6 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
     def on_actionMade(self, action):
         try:
             self.gameThread.mutex.lock()
-            print "actionmade"
             self.gameThread.action = action
             WaitForAction.wakeAll()
         finally:

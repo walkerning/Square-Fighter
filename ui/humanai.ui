@@ -26,9 +26,9 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>30</y>
+     <y>10</y>
      <width>521</width>
-     <height>461</height>
+     <height>481</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="gridWidgetLayout"/>

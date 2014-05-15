@@ -71,6 +71,7 @@ class ReplayWidget(QGraphicsView):
         self.debugUnitList = []
         self.aniUnitList = []
         self.setScene(QGraphicsScene(self))
+        self.setSceneRect(0, 0, (UNIT_WIDTH + EDGE_WIDTH) * (SIZE+1), (UNIT_WIDTH + EDGE_WIDTH) *(SIZE))
 
         self.isPaused = False
         self._showdebug = False
@@ -232,35 +233,48 @@ class ReplayWidgetWithHuman(ReplayWidget):
         self.nowPlayIndex = 0
         self.setMouseTracking(True)
         self.basePosList = [tuple(), tuple()]
+        self.fitInView(QRectF(0, 0, 14 * (UNIT_WIDTH + EDGE_WIDTH), 14 * (UNIT_WIDTH + EDGE_WIDTH)), Qt.KeepAspectRatio)
 
     def beginAction(self, playerIndex):
-        print "beginAction call"
         self.nowPlayIndex = playerIndex
         self.inAction = True
 
     def setCurrentPile(self, playerIndex, pileIndex):
-        print "set current pile"
+        if pileIndex < 0:
+            pileIndex = None
         self.pileList[playerIndex][0] = pileIndex
         self.pileList[playerIndex][1] = 0
 
     def mousePressEvent(self, event):
-        if self.inAction:
-            pos = event.pos()
-            item = self.itemAt(pos)
-            if isinstance(item, GridUnit):
-                basePos = item.position
-                action = (self.pileList[self.nowPlayIndex][0], basePos, self.pileList[self.nowPlayIndex][1])
-                if len(self.recordList) == 1:
-                    state = game.GameState()
-                else:
-                    state = self.recordList[-2][-1]
-                if action  in state.getLegalActions(self.nowPlayIndex):
-                    self.inAction = False
-                    self.emit(SIGNAL("actionMade"), action)
+        if self.inAction and not self.pileList[self.nowPlayIndex][0] is None:
+            if event.button() == Qt.LeftButton:
+                pos = event.pos()
+                item = self.itemAt(pos)
+                if isinstance(item, GridUnit):
+                    basePos = item.position
+                    action = (self.pileList[self.nowPlayIndex][0], basePos, self.pileList[self.nowPlayIndex][1])
+                    if len(self.recordList) == 1:
+                        state = game.GameState()
+                    else:
+                        state = self.recordList[-2][-1]
+                    if action  in state.getLegalActions(self.nowPlayIndex):
+                        self.inAction = False
+                        self.emit(SIGNAL("actionMade"), action)
+            elif event.button() == Qt.RightButton:
+                self.pileList[self.nowPlayIndex][1] = (self.pileList[self.nowPlayIndex][1] + 1) % len(game.PileRotateList[self.pileList[self.nowPlayIndex][0]])
+                basePos = self.basePosList[self.nowPlayIndex]
+                self._resetActionUnit()
+                pileIndex, rotateIndex = self.pileList[self.nowPlayIndex]
+                for rel in game.PileRotateList[pileIndex][rotateIndex]:
+                    position = (basePos[0] + rel[0], basePos[1] + rel[1])
+                    item = GridUnit(ACTION_COLOR_LIST[self.nowPlayIndex])
+                    item.setPos(position[0], position[1])
+                    self.scene().addItem(item)
+                    self.actionUnitList.append(item)
 
         ReplayWidget.mousePressEvent(self, event)
 
-    def keyPressEvent(self, event):
+    """def keyPressEvent(self, event):
         if self.inAction and event.key() == Qt.Key_Space:
             self.pileList[self.nowPlayIndex][1] = (self.pileList[self.nowPlayIndex][1] + 1) % len(game.PileRotateList[self.pileList[self.nowPlayIndex][0]])
             basePos = self.basePosList[self.nowPlayIndex]
@@ -274,7 +288,7 @@ class ReplayWidgetWithHuman(ReplayWidget):
                 self.actionUnitList.append(item)
 
         ReplayWidget.keyPressEvent(self, event)
-
+    """
     def _resetActionUnit(self):
         for item in self.actionUnitList:
             self.scene().removeItem(item)
@@ -282,7 +296,7 @@ class ReplayWidgetWithHuman(ReplayWidget):
         self.actionUnitList = []
 
     def mouseMoveEvent(self, event):
-        if self.inAction:
+        if self.inAction and not self.pileList[self.nowPlayIndex][0] is None:
             pos = event.pos()
             item = self.itemAt(pos)
             if isinstance(item, GridUnit):

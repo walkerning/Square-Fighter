@@ -17,3 +17,4 @@ replayfiles/*
 *.rep
 *.data
 images/*
+gui/images/*
