@@ -136,57 +136,17 @@ class GameState:
     """
     def __init__(self, oldState = None):
         self.legalActionsDict = dict()
-
         self.availDict = dict()
         self.impoDict = dict()
-
-        self.incrementalImpoDict = dict()
-        self.correctActions = [False, False]
 
         if oldState is None:
             self.data = GameStateData()
         else:
             self.data = oldState.data.deepCopy()
-            #self.legalActionsDict = copy.deepcopy(oldState.legalActionsDict)
-
-    def getIncrementalImpo(self, oldState):
-        for index in range(2):
-            _, oldStateImpo = oldState._getAvailableAndImportantGrids(index)
-            self.availDict[index], self.impoDict[index] = self._getAvailableAndImportantGrids(index)
-            self.incrementalImpoDict[index] = self.impoDict[index] - oldStateImpo
 
     def getLegalActions(self, index):
         if self.legalActionsDict.has_key(index):
-            if self.correctActions[index]:
-                return self.legalActionsDict[index]
-            else:
-                #print self.legalActionsDict[index]
-                leftPiles = self.getLeftPiles(index)
-                availGridList, impoGridSet = self._getAvailableAndImportantGrids(index)
-                legalActions = []
-                for action in self.legalActionsDict[index]:
-                    pileIndex, pos, rotateIndex = action
-                    if pileIndex not in leftPiles:
-                        continue
-                    positionList = map(lambda p: (pos[0] + p[0], pos[1] + p[1]), PileRotateList[pileIndex][rotateIndex])
-                    if set(positionList).issubset(availGridList) and impoGridSet.intersection(set(positionList)):
-                        #print "no one?"
-                        legalActions.append(action)
-                #print self.incrementalImpoDict[index]
-                if self.incrementalImpoDict[index]:
-                    for pos in availGridList:
-                        if min(map(lambda p: manhattanDistance(p, pos), self.incrementalImpoDict[index])) > 4:
-                            continue
-                        for pileIndex in leftPiles:
-                            for rotateIndex in range(len(PileRotateList[pileIndex])):
-                                positionList = map(lambda p: (pos[0] + p[0], pos[1] + p[1]), PileRotateList[pileIndex][rotateIndex])
-                                if self.incrementalImpoDict[index].intersection(set(positionList)) and set(positionList).issubset(availGridList):
-                                    legalActions.append((pileIndex, pos, rotateIndex))
-
-                self.correctActions[index] = True
-                self.legalActionsDict[index] = legalActions
-
-                return legalActions
+            return self.legalActionsDict[index]
 
         leftPiles = self.getLeftPiles(index)
         availGridList, impoGridSet = self._getAvailableAndImportantGrids(index)
@@ -204,7 +164,6 @@ class GameState:
                         legalActions.append((pileIndex, pos, rotateIndex))
 
         self.legalActionsDict[index] = legalActions
-        self.correctActions[index] = True
         return legalActions
 
     def getLeftPiles(self, index):
@@ -224,7 +183,6 @@ class GameState:
 
         successor = GameState(self)
         successor.data.generateNextStateData(index, action)
-        successor.getIncrementalImpo(self)
         return successor
 
     # --- helper function ---
@@ -255,10 +213,9 @@ class GameState:
         if len(leftPiles) == PILE_NUMBER: # Begining of the game
             importantGridSet = set([(0,0)]) if index == 0 else set([(self.data.boardData.size - 1, self.data.boardData.size - 1)])
 
-            #self.availDict[index] = board.asList(board.EMPTY)
-            #self.impoDict[index] = importantGridSet
-            #return self.availDict[index], importantGridSet
-        return board.asList(board.EMPTY), importantGridSet
+        self.availDict[index] = board.asList(board.EMPTY)
+        self.impoDict[index] = importantGridSet
+        return self.availDict[index], importantGridSet
 
     # -----------End helper function------------
 

@@ -165,7 +165,7 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
         self.replayWidget.recordList.insert(-1, record)
         self.replayWidget.recordList[-1] = (nextIndex,)
         self.replayWidget.GoToRound(len(self.replayWidget.recordList) - 1)
-        if record[-2]:
+        if record[3]:
             self.pileListWidgets[record[0]].removePile(record[1][0])
 
     def showResult(self, result):

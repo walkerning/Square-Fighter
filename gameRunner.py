@@ -2,6 +2,7 @@
 # The game runner
 
 import game
+import time
 
 class Game:
     """
@@ -66,5 +67,8 @@ class Game:
 
     def startGame(self):
         while not self.isFinished:
-            self.generateSuccessor(self.agents[self.index].getAction(self.nowState))
+            #start = time.time()
+            action = self.agents[self.index].getAction(self.nowState)
+            #end = time.time()
+            self.generateSuccessor(action)
         self.settlement()
