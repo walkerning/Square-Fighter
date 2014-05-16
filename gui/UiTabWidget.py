@@ -16,6 +16,7 @@ class Ui_TabWidget(QTabWidget):
         widget1 = SquareListWidget(range(4, 9))
         widget2 = SquareListWidget(range(9, 21))
         self.widgets = [widget0, widget1, widget2]
+        self.setCurrentIndex(2)
 
         self.addTab(widget0, "<= 3")
         self.addTab(widget1, "4")
@@ -24,14 +25,18 @@ class Ui_TabWidget(QTabWidget):
             #print widget.metaObject().indexOfSignal("currentItemChanged(QListWidgetItem*,QListWidgetItem*)")
             #self.connect(widget, SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.on_currentItemChanged)
             self.connect(widget, SIGNAL("itemSelectionChanged()"), self.on_currentItemChanged)
+        self.connect(self, SIGNAL("currentChanged(int)"), self.on_currentItemChanged)
 
-    def on_currentItemChanged(self):
-        currentItem = self.sender().currentItem()
-        if currentItem:
-            pileIndex = currentItem.data(SquareListWidget.PILE_INDEX_ROLE).toInt()[0]
-        else:
-            pileIndex = -1
-        self.emit(SIGNAL("currentPileChanged"), pileIndex)
+    def on_currentItemChanged(self, *para):
+        try:
+            currentItem = self.widget(self.currentIndex()).currentItem()
+            if currentItem:
+                pileIndex = currentItem.data(SquareListWidget.PILE_INDEX_ROLE).toInt()[0]
+            else:
+                pileIndex = -1
+            self.emit(SIGNAL("currentPileChanged"), pileIndex)
+        except:
+            return
 
     def removePile(self, pileIndex):
         if pileIndex < 4:
