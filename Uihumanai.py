@@ -51,7 +51,7 @@ class GameThread(QThread, gameRunner.Game):
             if not self.isStopped():
                 self.generateSuccessor(self.action)
                 #self.recordRecv.emit(self.recordList[-1])
-                self.emit(SIGNAL("recordRecv"), self.recordList[-1])
+                self.emit(SIGNAL("recordRecv"), self.recordList[-1], self.index)
                 #self.func(self.recordList[-1])
         if not self.isStopped():
             self.settlement()
@@ -86,6 +86,7 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
         self.connect(self.startButton, SIGNAL("clicked()"), self.startGame)
         self.connect(self.endButton, SIGNAL("clicked()"), self.endGame)
         self.connect(self.saveRecordButton, SIGNAL("clicked()"), self.saveGame)
+        self.connect(self.debugCheck, SIGNAL("toggled(bool)"), self.replayWidget, SLOT("setShowDebug(bool)"))
 
     def startGame(self):
         self.players[0] = self.playerCheck1.isChecked()
@@ -160,8 +161,9 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
             return
         self.replayWidget.setCurrentPile(playerIndex, pileIndex)
 
-    def on_recordRecv(self, record):
+    def on_recordRecv(self, record, nextIndex):
         self.replayWidget.recordList.insert(-1, record)
+        self.replayWidget.recordList[-1] = (nextIndex,)
         self.replayWidget.GoToRound(len(self.replayWidget.recordList) - 1)
         self.pileListWidgets[record[0]].removePile(record[1][0])
 

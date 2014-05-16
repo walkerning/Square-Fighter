@@ -145,7 +145,7 @@ class ReplayWidget(QGraphicsView):
 
     def _ShowDebug(self):
         self._resetDebug()
-        if self.round == len(self.recordList) - 1:
+        if self.round == len(self.recordList) - 1 and not hasattr(self, 'human'):
             return
         if self.round == 0:
             state = game.GameState()
@@ -229,6 +229,7 @@ class ReplayWidgetWithHuman(ReplayWidget):
 
         self.pileList = [[0, 0], [0, 0]]
         self.inAction = False
+        self.human = True
         self.actionUnitList = []
         self.nowPlayIndex = 0
         self.setMouseTracking(True)

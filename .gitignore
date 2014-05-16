@@ -1,7 +1,6 @@
 # gitignore
 # python
 *.py[cod]
-!__init__.py
 
 # emacs temporary
 *~
@@ -9,12 +8,12 @@
 .\#*
 
 # ui files
-ui/*
-!ui/*.ui
+#ui/*
+#!ui/*.ui
 
 # data files
 replayfiles/*
 *.rep
 *.data
-images/*
-gui/images/*
+#images/*
+#gui/images/*
