@@ -160,6 +160,12 @@ class GameState:
     def getLeftPiles(self, index):
         return self.data.leftPileList[index][:]
 
+    def getScores(self, index):
+        score = 0
+        for i in range(len(self.data.leftPileList[index])):
+            score += PileSquareNumberList[self.data.leftPileList[index][i]]
+        return score
+
     def generateSuccessor(self, index, action):
         """Check the legality of the specific action of player <index>, if it's legal generate the successor state"""
         if action not in self.getLegalActions(index):
