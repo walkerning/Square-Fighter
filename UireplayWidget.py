@@ -151,9 +151,11 @@ class ReplayWidget(QGraphicsView):
             return
         if self.round == 0:
             state = game.GameState()
+            index = 0
         else:
             state = self.recordList[self.round - 1][-1]
-        availGrids, impoGrids = state._getAvailableAndImportantGrids(self.recordList[self.round][0])
+            index = self.recordList[self.round][0]
+        availGrids, impoGrids = state._getAvailableAndImportantGrids(index)
         for pos in impoGrids:
             unit = GridUnit(DEBUG_COLOR_LIST[0])
             self.scene().addItem(unit)

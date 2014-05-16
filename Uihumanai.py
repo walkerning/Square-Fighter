@@ -147,7 +147,11 @@ class GameRunnerWithHuman(QWidget, Ui_GameWindow):
     def saveGame(self):
         self.saveRecordButton.setEnabled(False)
         import time
-        filename = "%s-vs-%s"%tuple(self.agentList) + time.strftime('%m-%d-%H-%M-%S',time.localtime(time.time())) + ".rep"
+        nameList = self.agentList[:]
+        for i in range(2):
+            if self.players[i]:
+                nameList[i] = 'human'
+        filename = "%s-vs-%s"%tuple(nameList) + time.strftime('%m-%d-%H-%M-%S',time.localtime(time.time())) + ".rep"
         f = file(filename, 'w')
         cPickle.dump(self.replayWidget.recordList, f)
         f.close()
