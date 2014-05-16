@@ -37,7 +37,11 @@ class Game:
         return False
 
     def generateSuccessor(self, action):
-        self.nowState, correct= self.nowState.generateSuccessor(self.index, action)
+        newState = self.nowState.generateSuccessor(self.index, action)
+        correct = True
+        if newState is self.nowState:
+            correct = False
+        self.nowState = newState
         if self.record:
             self.recordList.append((self.index, action, correct, self.nowState))
         if not self.nextPlayer():
