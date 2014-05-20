@@ -125,7 +125,9 @@ class ReplayWidget(QGraphicsView):
             self._resetState()
             self._setInitialState(game.GameState())
         else:
-            self._setState(self.recordList[roundn - 1][-1])
+            record = self.recordList[roundn - 1]
+            if record[3]:
+                self._setState(record[-1])
         self._resetDebug()
         if self._showdebug:
             self._ShowDebug()

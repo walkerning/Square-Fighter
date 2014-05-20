@@ -32,11 +32,8 @@ class stupidReverseAgent(Agent):
 
 class AlphaBetaAgent(Agent):
     def getAction(self, gameState):
-        self.depth = 3
+        self.depth = 1
         def alphabeta(depth, gameState, agentIndex, alpha, beta):
-            count = []
-
-            print gameState.getLegalActions(self.index)
 
             if len(gameState.getLegalActions(self.index)) == 0 and gameState.getScores(self.index) > gameState.getScores(1 - self.index) :
                 return -999
@@ -54,6 +51,7 @@ class AlphaBetaAgent(Agent):
                     return v
                 else:
                     legalaction = gameState.getLegalActions(agentIndex)
+                    count = []
                     for move in legalaction:
                         count += [alphabeta(depth, gameState.generateSuccessor(agentIndex,move), 1 - agentIndex, alpha, beta)]
                         if max(count) >= beta:
@@ -73,10 +71,13 @@ class AlphaBetaAgent(Agent):
                         return v
                     beta = min(beta,v)
                 return v
-     
-        return alphabeta(3, gameState, self.index, -99999, 99999)
+
+        tmp = alphabeta(1, gameState, self.index, -99999, 99999)
+        print "action:",tmp
+        return tmp
 
     def evaluationFunction(self, gameState):
         return gameState.getScores(self.index) - gameState.getScores(1 - self.index) + len(gameState.getLegalActions(self.index)) - len(gameState.getLegalActions(1 - self.index))
 
 defaultAgent = stupidAgent
+abAgent = AlphaBetaAgent

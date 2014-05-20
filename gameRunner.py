@@ -2,6 +2,7 @@
 # The game runner
 
 import game
+import time
 
 class Game:
     """
@@ -37,7 +38,11 @@ class Game:
         return False
 
     def generateSuccessor(self, action):
-        self.nowState, correct= self.nowState.generateSuccessor(self.index, action)
+        newState = self.nowState.generateSuccessor(self.index, action)
+        correct = True
+        if newState is self.nowState:
+            correct = False
+        self.nowState = newState
         if self.record:
             self.recordList.append((self.index, action, correct, self.nowState))
         if not self.nextPlayer():
@@ -62,5 +67,8 @@ class Game:
 
     def startGame(self):
         while not self.isFinished:
-            self.generateSuccessor(self.agents[self.index].getAction(self.nowState))
+            #start = time.time()
+            action = self.agents[self.index].getAction(self.nowState)
+            #end = time.time()
+            self.generateSuccessor(action)
         self.settlement()
