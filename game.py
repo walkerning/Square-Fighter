@@ -215,7 +215,7 @@ class GameState:
 
         self.availDict[index] = board.asList(board.EMPTY)
         self.impoDict[index] = importantGridSet
-        return self.availDict[index], importantGridSet
+        return self.availDict[index], self.impoDict[index]
 
     # -----------End helper function------------
 
