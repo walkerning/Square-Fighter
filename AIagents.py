@@ -2,6 +2,7 @@
 # AI agents
 
 from game import printNotDefined
+import random
 
 class Agent(object):
     """
@@ -79,5 +80,28 @@ class AlphaBetaAgent(Agent):
     def evaluationFunction(self, gameState):
         return gameState.getScores(self.index) - gameState.getScores(1 - self.index) + len(gameState.getLegalActions(self.index)) - len(gameState.getLegalActions(1 - self.index))
 
-defaultAgent = stupidAgent
+class ReflexAgent(Agent):
+ 
+  def getAction(self, gameState):
+    # Collect legal moves and successor states
+    self.legalMoves = gameState.getLegalActions(self.index)
+
+    # Choose one of the best actions
+    score = -9999
+    i = 0
+    j = 0
+    for action in self.legalMoves:
+        newscore = self.evaluationFunction(gameState.generateSuccessor(self.index, action))
+        if newscore > score :
+            score = newscore
+            j = i
+        i += 1
+
+    return self.legalMoves[j]
+
+  def evaluationFunction(self, gameState):
+    return gameState.getScores(self.index) + len(self.legalMoves) -gameState.getScores(1 - self.index)
+
+defaultAgent = stupidReverseAgent
 abAgent = AlphaBetaAgent
+rAgent = ReflexAgent
