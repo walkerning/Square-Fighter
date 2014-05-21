@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # AI agents
 
-from game import printNotDefined
+from game import printNotDefined,manhattanDistance
 import random
 
 class Agent(object):
@@ -74,11 +74,20 @@ class AlphaBetaAgent(Agent):
                 return v
 
         tmp = alphabeta(1, gameState, self.index, -99999, 99999)
-        print "action:",tmp
         return tmp
 
     def evaluationFunction(self, gameState):
-        return gameState.getScores(self.index) - gameState.getScores(1 - self.index) + len(gameState.getLegalActions(self.index)) - len(gameState.getLegalActions(1 - self.index))
+        theta = [0.5 for i in range(5)]
+        otherDetails = 0
+        singlegridlist = []
+        for grid in gameState._getAvailableAndImportantGrids(self.index)[0]:
+            if (grid[0] + 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] + 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0]:
+                singlegridlist.append(grid)
+        for grid in singlegridlist:
+            for grid2 in singlegridlist[singlegridlist.index(grid):]:
+                if manhattanDistance(grid, grid2) == 2:
+                    otherDetails += 10
+        return gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[0]) - gameState.getScores(1 - self.index) - 2 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[0]) + otherDetails
 
 class ReflexAgent(Agent):
  
@@ -100,7 +109,17 @@ class ReflexAgent(Agent):
     return self.legalMoves[j]
 
   def evaluationFunction(self, gameState):
-    return gameState.getScores(self.index) + len(self.legalMoves) -gameState.getScores(1 - self.index)
+    theta = [0.5 for i in range(5)]
+    otherDetails = 0
+    singlegridlist = []
+    for grid in gameState._getAvailableAndImportantGrids(self.index)[0]:
+        if (grid[0] + 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] + 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0]:
+            singlegridlist.append(grid)
+    for grid in singlegridlist:
+        for grid2 in singlegridlist[singlegridlist.index(grid):]:
+            if game.manhattanDistance(grid, grid2) == 2:
+                otherDetails += 10
+    return gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[0]) - gameState.getScores(1 - self.index) - 2 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[0]) + otherDetails
 
 defaultAgent = stupidReverseAgent
 abAgent = AlphaBetaAgent
