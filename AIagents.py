@@ -81,3 +81,22 @@ class AlphaBetaAgent(Agent):
 
 defaultAgent = stupidAgent
 abAgent = AlphaBetaAgent
+srAgent = stupidReverseAgent
+
+from learn import extractFeatures, FEATURES, evalFunc
+
+class ReflexLinearAgent(Agent):
+    def __init__(self, index, evalFunc = evalFunc):
+        Agent.__init__(self, index)
+
+        self.weights = (0.8910675658865255, -3.1839751011649087, -0.2879020903914638, -1.0871294643958471, 2.469392715066099)#(0.4034291420404963, -1.974784328730528, -0.7064027925005527, -1.6819318793652704, 1.207184735264548)
+        self.evalFunc = evalFunc
+
+    def setWeight(self, weights):
+        self.weights = tuple(weights)
+
+    def getAction(self, gameState):
+        return max(gameState.getLegalActions(self.index), key = lambda action: self.evalFunc(gameState.generateSuccessor(self.index, action), self.index, self.weights))
+
+
+rlAgent = ReflexLinearAgent

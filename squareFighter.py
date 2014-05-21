@@ -4,9 +4,16 @@
 import AIagents
 import game
 import gameRunner
+from learn import Learning
 
 def default(string):
     return string + ' [Default: %default] '
+def printResult(result, i = ''):
+    if result[1] == -1:
+        resultStr = "Tie!"
+    else:
+        resultStr = "agent%d Win!"%(result[1] + 1)
+    print "No.%s: agent1 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
 
 # 解析命令行参数
 def ParseCommand(argv):
@@ -24,6 +31,8 @@ def ParseCommand(argv):
     parser.add_option('-s', '--switch', action='store_true', dest='switch', help='play 2*n times with switching order')
     parser.add_option('-r', '--record', action='store_true', dest='record',
   help='Store replay files.', default=False)
+    parser.add_option('-l', '--learn', action='store_true', dest='learn',
+                      help='Learning algorithm')
 
     options, junk = parser.parse_args(argv)
     if len(junk) != 0:
@@ -33,12 +42,16 @@ def ParseCommand(argv):
     args['numGames'] = options.numGames
     args['agents'] = (options.agent1, options.agent2)
     args['switch'] = options.switch
+    args['learn'] = options.learn
 
     return args
 
-def runGames(agents, numGames, record, switch):
+def runGames(agents, numGames, record, switch, learn):
     games = []
 
+    if learn:
+        Learning(numGames)
+        return
     agentList = []
     for i in range(len(agents)):
         agent = agents[i]
@@ -51,12 +64,7 @@ def runGames(agents, numGames, record, switch):
         game = gameRunner.Game(agentList, True)
         game.startGame()
         result = game.recordList[-1]
-        if result[1] == -1:
-            resultStr = "Tie!"
-        else:
-            resultStr = "agent%d Win!"%(result[1] + 1)
-        print "No.%d: agent1 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
-
+        printResult(result, str(i))
         if record:
             import time, cPickle
             filename = "%dtimes-"%numGames + "%s-vs-%s"%tuple([x.__class__.__name__ for x in agentList]) + time.strftime('%m-%d-%H-%M-%S',time.localtime(time.time())) + ".rep"
