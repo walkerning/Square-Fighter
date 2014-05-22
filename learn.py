@@ -63,7 +63,7 @@ def Learning(times, learningAgent="ReflexLinearAgent", start = [1.05161537291174
             game.startGame()
             recordList = copy.deepcopy(game.recordList)
 
-            printResult(recordList[-1], str(i))
+            #printResult(recordList[-1], str(i))
             if recordList[-1][1] == -1:
                 utilityList = [TIE_UTILITY, TIE_UTILITY]
             elif recordList[-1][1] == 0:

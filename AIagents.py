@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 # AI agents
 
-from game import printNotDefined
+
 import game
+from game import printNotDefined,manhattanDistance
+from StateLearn import gameStateLib
+import random
 
 class Agent(object):
     """
@@ -33,7 +36,7 @@ class stupidReverseAgent(Agent):
 
 class AlphaBetaAgent(Agent):
     def getAction(self, gameState):
-        self.depth = 1
+        self.depth = 2
         def alphabeta(depth, gameState, agentIndex, alpha, beta):
 
             if len(gameState.getLegalActions(self.index)) == 0 and gameState.getScores(self.index) > gameState.getScores(1 - self.index) :
@@ -73,16 +76,54 @@ class AlphaBetaAgent(Agent):
                     beta = min(beta,v)
                 return v
 
-        tmp = alphabeta(1, gameState, self.index, -99999, 99999)
-        print "action:",tmp
+        tmp = alphabeta(self.depth, gameState, self.index, -99999, 99999)
         return tmp
 
     def evaluationFunction(self, gameState):
-        return gameState.getScores(self.index) - gameState.getScores(1 - self.index) + len(gameState.getLegalActions(self.index)) - len(gameState.getLegalActions(1 - self.index))
+        theta = [0.5 for i in range(5)]
+        otherDetails = 0
+        singlegridlist = []
+        for grid in gameState._getAvailableAndImportantGrids(self.index)[0]:
+            if (grid[0] + 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] + 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0]:
+                singlegridlist.append(grid)
+        for grid in singlegridlist:
+            for grid2 in singlegridlist[singlegridlist.index(grid):]:
+                if manhattanDistance(grid, grid2) == 2:
+                    otherDetails += 5
+        return - 5 * gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[1]) - 30 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[1]) + otherDetails
 
-defaultAgent = stupidAgent
-abAgent = AlphaBetaAgent
-srAgent = stupidReverseAgent
+class ReflexAgent(Agent):
+ 
+  def getAction(self, gameState):
+    # Collect legal moves and successor states
+    self.legalMoves = gameState.getLegalActions(self.index)
+
+    # Choose one of the best actions
+    score = -9999
+    i = 0
+    j = 0
+    for action in self.legalMoves:
+        newscore = self.evaluationFunction(gameState.generateSuccessor(self.index, action))
+        if newscore > score :
+            score = newscore
+            j = i
+        i += 1
+
+    return self.legalMoves[j]
+
+  def evaluationFunction(self, gameState):
+    theta = [0.5 for i in range(5)]
+    otherDetails = 0
+    singlegridlist = []
+    for grid in gameState._getAvailableAndImportantGrids(self.index)[0]:
+        if (grid[0] + 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] + 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0]:
+            singlegridlist.append(grid)
+    for grid in singlegridlist:
+        for grid2 in singlegridlist[singlegridlist.index(grid):]:
+            if manhattanDistance(grid, grid2) == 2:
+                otherDetails += 5
+    return - 5 * gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[1]) - 20 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[1]) + otherDetails
+
 
 from learn import extractFeatures, FEATURES, evalFunc
 
@@ -98,6 +139,35 @@ class ReflexLinearAgent(Agent):
 
     def getAction(self, gameState):
         return max(gameState.getLegalActions(self.index), key = lambda action: self.evalFunc(gameState.generateSuccessor(self.index, action), self.index, self.weights))
+
+from StateLearn import evalFunc
+
+class ReflexStateAgent(Agent):
+    def __init__(self, index, evalFunc = evalFunc):
+        Agent.__init__(self, index)
+
+        self.gameStateValue = [{} for x in range(21)]
+        self.evalFunc = evalFunc
+
+    def setValue(self, gameStateLib):
+        self.gameStateValue = gameStateLib
+
+    def getAction(self, gameState):
+        leftnum = len(gameState.getLeftPiles(self.index))
+        legalaction = gameState.getLegalActions(self.index)
+        max = -99999
+        bestaction = legalaction[0]
+        for action in legalaction:
+            newgameState = gameState.generateSuccessor(self.index, action)
+            if newgameState in gameStateLib[leftnum - 1].keys():
+                if gameStateLib[leftnum - 1][str(newgameState)] > max:
+                    bestaction = action
+                    max = gameStateLib[leftnum - 1][str(newgameState)]
+            else:
+                if self.evalFunc(newgameState, self.index) * 1.01 > max:
+                    bestaction = action
+                    max = self.evalFunc(newgameState, self.index) * 1.01
+        return bestaction
 
 
 class ReflexAgent(Agent):
@@ -134,3 +204,7 @@ class ReflexAgent(Agent):
 
 rlAgent = ReflexLinearAgent
 rAgent = ReflexAgent
+rsAgent = ReflexStateAgent
+defaultAgent = stupidReverseAgent
+abAgent = AlphaBetaAgent
+srAgent = stupidReverseAgent
