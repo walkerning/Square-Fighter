@@ -4,21 +4,23 @@ import gameRunner
 import AIagents
 import copy
 import game
+from squareFighter import printResult
 
 WIN_UTILITY = 1
 TIE_UTILITY = 0
 LOSE_UTILITY = -1
 STEP1 = 0.01
-STEP2 = 0.001
-gameStateLib = [{} for x in range(21)]
+STEP2 = 0.0003
+gridBoardLib = [{} for x in range(21)]
+highestScore = 0
+countOf = 1
 
 def storeState(gameState, index):
 	leftnum = len(gameState.getLeftPiles(index))
 	if leftnum <= 17:
 		value = evalFunc(gameState, index)
-		if gameState not in gameStateLib[leftnum]:
-			gameStateLib[leftnum][str(gameState)] = value
-			print "gameStateLib is enlarged:",gameState," || ",value
+		if str(gameState.getBoard()) not in gridBoardLib[leftnum].keys():
+			gridBoardLib[leftnum][str(gameState.getBoard())] = value
 
 def extractFeatures(gameState, index):
     avail_self, impo_self = gameState._getAvailableAndImportantGrids(index)
@@ -35,8 +37,15 @@ def evalFunc(gameState, index):
     return sum(map(lambda x, y: x * y, featureList, weights))
 
 def training(trainingDatas):
-	for datum in trainingDatas:
-		gameStateLib[datum[0].getLeftPiles(0)][str(datum(0))] += STEP2 * datum[2]
+    label = 1
+    if trainingDatas[0][2] > highestScore :
+        highestscore = trainingDatas[0][2]
+        label = countOf
+    for datum in trainingDatas :
+        if len(datum[0].getLeftPiles(0)) <= 17:
+            #print len(datum[0].getLeftPiles(0)),datum[0]
+            gridBoardLib[len(datum[0].getLeftPiles(0))][str(datum[0].getBoard())] += (STEP2 * datum[2] * label * (21 - len(datum[0].getLeftPiles(0))))
+    countOf += 1
 
 def Learning(times, learningAgent="ReflexStateAgent", start = []):
         if not hasattr(AIagents, learningAgent) or not hasattr(getattr(AIagents, learningAgent), 'getAction'):
@@ -44,16 +53,18 @@ def Learning(times, learningAgent="ReflexStateAgent", start = []):
             learningAgent = "ReflexStateAgent"
         agentClass = getattr(AIagents, learningAgent)
 
+        
         agents = [agentClass(i, evalFunc) for i in range(2)]
 
         for i in range(times):
             trainingDatas = []
-
+            for agent in agents:
+                agent.setValue(gridBoardLib)
             game = gameRunner.Game(agents, True)
             game.startGame()
             recordList = copy.deepcopy(game.recordList)
 
-            #printResult(recordList[-1], str(i))
+            printResult(recordList[-1], str(i))
             squareLost = game.leftSquares[0] - game.leftSquares[1]
             if recordList[-1][1] == -1:
                 utilityList = [TIE_UTILITY, TIE_UTILITY]
@@ -67,10 +78,11 @@ def Learning(times, learningAgent="ReflexStateAgent", start = []):
             recordList.pop()
             for i in range(len(recordList)):
                 record = recordList[i]
-                storeState(record[4], record[0])
             	trainingDatas.append((record[-1], record[0], squareLost))
-            Training(trainingDatas, weights)
+                storeState(trainingDatas[-1][0], trainingDatas[-1][1])
+            training(trainingDatas)
 
-
-
-
+        for i in range(3,21):
+            print gridBoardLib[i].values()
+        f = open("g:\\shuju.txt","w")
+        print >>f,gridBoardLib
