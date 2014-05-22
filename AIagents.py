@@ -2,6 +2,7 @@
 # AI agents
 
 from game import printNotDefined
+import game
 
 class Agent(object):
     """
@@ -99,4 +100,37 @@ class ReflexLinearAgent(Agent):
         return max(gameState.getLegalActions(self.index), key = lambda action: self.evalFunc(gameState.generateSuccessor(self.index, action), self.index, self.weights))
 
 
+class ReflexAgent(Agent):
+
+  def getAction(self, gameState):
+    # Collect legal moves and successor states
+    self.legalMoves = gameState.getLegalActions(self.index)
+
+    # Choose one of the best actions
+    score = -9999
+    i = 0
+    j = 0
+    for action in self.legalMoves:
+        newscore = self.evaluationFunction(gameState.generateSuccessor(self.index, action))
+        if newscore > score :
+            score = newscore
+            j = i
+        i += 1
+
+    return self.legalMoves[j]
+
+  def evaluationFunction(self, gameState):
+    theta = [0.5 for i in range(5)]
+    otherDetails = 0
+    singlegridlist = []
+    for grid in gameState._getAvailableAndImportantGrids(self.index)[0]:
+        if (grid[0] + 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] + 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0]:
+            singlegridlist.append(grid)
+    for grid in singlegridlist:
+        for grid2 in singlegridlist[singlegridlist.index(grid):]:
+            if game.manhattanDistance(grid, grid2) == 2:
+                otherDetails += 10
+    return gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[0]) - gameState.getScores(1 - self.index) - 2 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[0]) + otherDetails
+
 rlAgent = ReflexLinearAgent
+rAgent = ReflexAgent
