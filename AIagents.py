@@ -33,7 +33,7 @@ class stupidReverseAgent(Agent):
 
 class AlphaBetaAgent(Agent):
     def getAction(self, gameState):
-        self.depth = 1
+        self.depth = 2
         def alphabeta(depth, gameState, agentIndex, alpha, beta):
 
             if len(gameState.getLegalActions(self.index)) == 0 and gameState.getScores(self.index) > gameState.getScores(1 - self.index) :
@@ -73,7 +73,7 @@ class AlphaBetaAgent(Agent):
                     beta = min(beta,v)
                 return v
 
-        tmp = alphabeta(1, gameState, self.index, -99999, 99999)
+        tmp = alphabeta(self.depth, gameState, self.index, -99999, 99999)
         return tmp
 
     def evaluationFunction(self, gameState):
@@ -86,8 +86,8 @@ class AlphaBetaAgent(Agent):
         for grid in singlegridlist:
             for grid2 in singlegridlist[singlegridlist.index(grid):]:
                 if manhattanDistance(grid, grid2) == 2:
-                    otherDetails += 10
-        return gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[0]) - gameState.getScores(1 - self.index) - 2 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[0]) + otherDetails
+                    otherDetails += 5
+        return - 5 * gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[1]) - 30 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[1]) + otherDetails
 
 class ReflexAgent(Agent):
  
@@ -117,15 +117,13 @@ class ReflexAgent(Agent):
             singlegridlist.append(grid)
     for grid in singlegridlist:
         for grid2 in singlegridlist[singlegridlist.index(grid):]:
-            if game.manhattanDistance(grid, grid2) == 2:
-                otherDetails += 10
-    return gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[0]) - gameState.getScores(1 - self.index) - 2 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[0]) + otherDetails
+            if manhattanDistance(grid, grid2) == 2:
+                otherDetails += 5
+    return - 5 * gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[1]) - 20 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[1]) + otherDetails
 
 defaultAgent = stupidReverseAgent
 abAgent = AlphaBetaAgent
-<<<<<<< HEAD
 rAgent = ReflexAgent
-=======
 srAgent = stupidReverseAgent
 
 from learn import extractFeatures, FEATURES, evalFunc
@@ -134,7 +132,7 @@ class ReflexLinearAgent(Agent):
     def __init__(self, index, evalFunc = evalFunc):
         Agent.__init__(self, index)
 
-        self.weights = (0.8910675658865255, -3.1839751011649087, -0.2879020903914638, -1.0871294643958471, 2.469392715066099)#(0.4034291420404963, -1.974784328730528, -0.7064027925005527, -1.6819318793652704, 1.207184735264548)
+        self.weights = (5.1084929, -10.4096144, -5.9062974, -7.2994937, 4.40631650236)#(0.4034291420404963, -1.974784328730528, -0.7064027925005527, -1.6819318793652704, 1.207184735264548)
         self.evalFunc = evalFunc
 
     def setWeight(self, weights):
@@ -143,6 +141,35 @@ class ReflexLinearAgent(Agent):
     def getAction(self, gameState):
         return max(gameState.getLegalActions(self.index), key = lambda action: self.evalFunc(gameState.generateSuccessor(self.index, action), self.index, self.weights))
 
+from StateLearn import evalFunc
+
+class ReflexStateAgent(Agent):
+    def __init__(self, index, evalFunc = evalFunc):
+        Agent.__init__(self, index)
+
+        self.gameStateValue = [{} for x in range(21)]
+        self.evalFunc = evalFunc
+
+    def setValue(self, gameStateLib):
+        self.gameStateValue = gameStateLib
+
+    def getAction(self, gameState):
+        leftnum = gameState.getLeftPiles(self.index)
+        legalaction = gameState.getLegalActions(self.index)
+        max = -99999
+        bestaction = legalaction[0]
+        for action in legalaction:
+            newgameState = gameState.generateSuccessor(self.index, action)
+            if newgameState in gameStateLib[leftnum - 1].keys():
+                if gameStateLib[leftnum - 1][str(newgameState)] > max:
+                    bestaction = action
+                    max = gameStateLib[leftnum - 1][str(newgameState)]
+            else:
+                if self.evalFunc(newgameState) * 1.01 > max:
+                    bestaction = action
+                    max = self.evalFunc(newgameState) * 1.01
+        return bestaction
+
 
 rlAgent = ReflexLinearAgent
->>>>>>> origin/learning
+
