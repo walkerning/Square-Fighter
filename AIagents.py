@@ -2,6 +2,7 @@
 # AI agents
 
 from game import printNotDefined,manhattanDistance
+from StateLearn import gameStateLib
 import random
 
 class Agent(object):
@@ -154,7 +155,7 @@ class ReflexStateAgent(Agent):
         self.gameStateValue = gameStateLib
 
     def getAction(self, gameState):
-        leftnum = gameState.getLeftPiles(self.index)
+        leftnum = len(gameState.getLeftPiles(self.index))
         legalaction = gameState.getLegalActions(self.index)
         max = -99999
         bestaction = legalaction[0]
@@ -165,11 +166,11 @@ class ReflexStateAgent(Agent):
                     bestaction = action
                     max = gameStateLib[leftnum - 1][str(newgameState)]
             else:
-                if self.evalFunc(newgameState) * 1.01 > max:
+                if self.evalFunc(newgameState, self.index) * 1.01 > max:
                     bestaction = action
-                    max = self.evalFunc(newgameState) * 1.01
+                    max = self.evalFunc(newgameState, self.index) * 1.01
         return bestaction
 
 
 rlAgent = ReflexLinearAgent
-
+rsAgent = ReflexStateAgent

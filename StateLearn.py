@@ -29,13 +29,14 @@ def extractFeatures(gameState, index):
     #print "extract feats", (impo_self, impo_oppo, avail_self, avail_oppo, diff_square)
     return (impo_self, impo_oppo, avail_self, avail_oppo, diff_square)
 
-def evalFunc(gameState, index, weights):
+def evalFunc(gameState, index):
+    weights = [0.7317122, -1.951789, 0.1245964, -0.763426, 2.031588]
     featureList = extractFeatures(gameState, index)
     return sum(map(lambda x, y: x * y, featureList, weights))
 
 def training(trainingDatas):
 	for datum in trainingDatas:
-		gameStateLib[datum[0].getLeftPiles(0)][str(datum(0)] += STEP2 * datum[2]
+		gameStateLib[datum[0].getLeftPiles(0)][str(datum(0))] += STEP2 * datum[2]
 
 def Learning(times, learningAgent="ReflexStateAgent", start = []):
         if not hasattr(AIagents, learningAgent) or not hasattr(getattr(AIagents, learningAgent), 'getAction'):
