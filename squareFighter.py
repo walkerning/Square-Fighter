@@ -14,7 +14,6 @@ def printResult(result, i = ''):
     else:
         resultStr = "agent%d Win!"%(result[1] + 1)
     print "No.%s: agent1 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
-
 # 解析命令行参数
 def ParseCommand(argv):
     from optparse import OptionParser

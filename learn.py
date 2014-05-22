@@ -4,21 +4,31 @@ import gameRunner
 import AIagents
 import copy
 
-WIN_UTILITY = 100
+SQUARE_TOTAL = 89
+WIN_UTILITY = 50
 TIE_UTILITY = 0
-LOSE_UTILITY = -100
+LOSE_UTILITY = -50
 STEP = 0.0001
-FEATURES = ('impo_self','impo_oppo','avail_self','avail_oppo','diff_square')
-STARTING_WEIGHT = (0.9, -0.9, 0.5, -0.5, 1)
+FEATURES = ('impo_self','impo_oppo','square_self','square_oppo')
+STARTING_WEIGHT = (0.9, -0.9, 1, -1)#0.5, -0.5, 1)
+
+def printResult(result, i = ''):
+    if result[1] == -1:
+        resultStr = "Tie!"
+    else:
+        resultStr = "agent%d Win!"%(result[1] + 1)
+    print "No.%s: agent1 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
 
 def extractFeatures(gameState, index):
     avail_self, impo_self = gameState._getAvailableAndImportantGrids(index)
     avail_self, impo_self = float(len(avail_self))/10, len(impo_self)
     avail_oppo, impo_oppo = gameState._getAvailableAndImportantGrids(1 - index)
     avail_oppo, impo_oppo = float(len(avail_oppo))/10, len(impo_oppo)
-    diff_square = gameState.getScores(1 - index) - gameState.getScores(index)
+    square_self = SQUARE_TOTAL - gameState.getScores(index)
+    square_oppo = SQUARE_TOTAL - gameState.getScores(1 - index)
+    #diff_square = gameState.getScores(1 - index) - gameState.getScores(index)
     #print "extract feats", (impo_self, impo_oppo, avail_self, avail_oppo, diff_square)
-    return (impo_self, impo_oppo, avail_self, avail_oppo, diff_square)
+    return (impo_self, impo_oppo, square_self, square_oppo)#diff_square)#avail_self, avail_oppo, diff_square)
 
 def evalFunc(gameState, index, weights):
     featureList = extractFeatures(gameState, index)
@@ -35,7 +45,7 @@ def Training(trainingDatas, weights):
         for i in range(len(weights)):
             weights[i] += STEP * feats[i] * (newUti - nowUti)
 
-def Learning(times, learningAgent="ReflexLinearAgent", start = []):
+def Learning(times, learningAgent="ReflexLinearAgent", start = [1.0516153729117497, -1.7406298037151497, 2.2668134620369664, -1.705074288351434]):
         if not hasattr(AIagents, learningAgent) or not hasattr(getattr(AIagents, learningAgent), 'getAction'):
             printAgentError(learningAgent)
             learningAgent = "ReflexLinearAgent"
