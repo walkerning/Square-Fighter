@@ -4,7 +4,8 @@
 import AIagents
 import game
 import gameRunner
-from learn import Learning
+import loopLearn
+import StateLearn
 
 def default(string):
     return string + ' [Default: %default] '
@@ -29,7 +30,9 @@ def ParseCommand(argv):
                       help=default("agent2's name"), metavar='AGENTNAME',default='defaultAgent')
     parser.add_option('-s', '--switch', action='store_true', dest='switch', help='play 2*n times with switching order')
     parser.add_option('-r', '--record', action='store_true', dest='record',
-  help='Store replay files.', default=False)
+                      help='Store replay files.', default=False)
+    parser.add_option('-i', '--lindex', dest='learn_index', type='int',
+                      help='Learning algorithm index', metavar='LEARNINDEX', default=0)
     parser.add_option('-l', '--learn', action='store_true', dest='learn',
                       help='Learning algorithm')
 
@@ -42,13 +45,21 @@ def ParseCommand(argv):
     args['agents'] = (options.agent1, options.agent2)
     args['switch'] = options.switch
     args['learn'] = options.learn
+    args['learn_index'] = options.learn_index
 
     return args
 
-def runGames(agents, numGames, record, switch, learn):
+def runGames(agents, numGames, record, switch, learn, learn_index):
     games = []
 
     if learn:
+        if learn_index == 0:
+            Learning = loopLearn.Learning
+        elif learn_index == 1:
+            Learning = StateLearn.Learning
+        else:
+            print "index %d did not refer to any learning algorithm"%learn_index
+            return
         Learning(numGames)
         return
     agentList = []
