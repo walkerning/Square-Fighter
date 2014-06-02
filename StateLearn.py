@@ -5,6 +5,7 @@ import AIagents
 import copy
 import game
 from squareFighter import printResult
+import loopLearn
 
 WIN_UTILITY = 1
 TIE_UTILITY = 0
@@ -19,9 +20,7 @@ def storeState(gameState, index):
 	leftnum = len(gameState.getLeftPiles(index))
 	if leftnum <= 17:
 		value = evalFunc(gameState, index)
-        	print index, leftnum
 		if str(gameState.getBoard()) not in gridBoardLib[index][leftnum].keys():
-            		print index,leftnum
 			gridBoardLib[index][leftnum][str(gameState.getBoard())] = value
 
 def extractFeatures(gameState, index):
@@ -44,15 +43,14 @@ def training(trainingDatas):
         #highestscore = trainingDatas[0][2]
         #label = countOf
     for datum in trainingDatas :
-        actionlist = [0]
-        if len(datum[0].getLeftPiles(datum[1])) <= 17:
-            #print len(datum[0].getLeftPiles(0)),datum[0]
-            for action in datum[0].getLegalActions(datum[1]):
-                actionlist.append(evalFunc(datum[0].generateSuccessor(datum[1], action), datum[1]))
-            if str(datum[0].getBoard()) not in gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))].keys():
-                storeState(datum[0], datum[1])
-                print "in"
-            gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))][str(datum[0].getBoard())] = (evalFunc(datum[0], datum[1]) + 0.9 * max(actionlist))
+            actionlist = [0]
+            if len(datum[0].getLeftPiles(datum[1])) <= 17:
+                #print len(datum[0].getLeftPiles(0)),datum[0]
+                for action in datum[0].getLegalActions(datum[1]):
+                    actionlist.append(evalFunc(datum[0].generateSuccessor(datum[1], action), datum[1]))
+                if str(datum[0].getBoard()) not in gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))].keys():
+                    storeState(datum[0], datum[1])
+                gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))][str(datum[0].getBoard())] = (evalFunc(datum[0], datum[1]) + 0.9 * max(actionlist))
     #countOf += 1
 
 def Learning(times, learningAgent="ReflexStateAgent", start = []):
@@ -60,7 +58,7 @@ def Learning(times, learningAgent="ReflexStateAgent", start = []):
             printAgentError(learningAgent)
             learningAgent = "ReflexStateAgent"
         agentClass = getattr(AIagents, learningAgent)
-
+        agentClasstwo = getattr(AIagents, "ReflexLinearAgent")
         
         agents = [agentClass(i, evalFunc) for i in range(2)]
 
@@ -68,6 +66,8 @@ def Learning(times, learningAgent="ReflexStateAgent", start = []):
             trainingDatas = []
             for agent in agents:
                 agent.setValue(gridBoardLib)
+                if i == times - 1:
+                    agent.setKValue(2)
             game = gameRunner.Game(agents, True)
             game.startGame()
             recordList = copy.deepcopy(game.recordList)
