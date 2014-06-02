@@ -11,16 +11,18 @@ TIE_UTILITY = 0
 LOSE_UTILITY = -1
 STEP1 = 0.01
 STEP2 = 0.0003
-gridBoardLib = [{} for x in range(21)]
+gridBoardLib = [[{} for x in range(21)] for y in range(2)]
 highestScore = 0
-countOf = 1
+#countOf = 1
 
 def storeState(gameState, index):
 	leftnum = len(gameState.getLeftPiles(index))
 	if leftnum <= 17:
 		value = evalFunc(gameState, index)
-		if str(gameState.getBoard()) not in gridBoardLib[leftnum].keys():
-			gridBoardLib[leftnum][str(gameState.getBoard())] = value
+        	print index, leftnum
+		if str(gameState.getBoard()) not in gridBoardLib[index][leftnum].keys():
+            		print index,leftnum
+			gridBoardLib[index][leftnum][str(gameState.getBoard())] = value
 
 def extractFeatures(gameState, index):
     avail_self, impo_self = gameState._getAvailableAndImportantGrids(index)
@@ -37,15 +39,21 @@ def evalFunc(gameState, index):
     return sum(map(lambda x, y: x * y, featureList, weights))
 
 def training(trainingDatas):
-    label = 1
-    if trainingDatas[0][2] > highestScore :
-        highestscore = trainingDatas[0][2]
-        label = countOf
+    #label = 1
+    #if trainingDatas[0][2] > highestScore :
+        #highestscore = trainingDatas[0][2]
+        #label = countOf
     for datum in trainingDatas :
-        if len(datum[0].getLeftPiles(0)) <= 17:
+        actionlist = [0]
+        if len(datum[0].getLeftPiles(datum[1])) <= 17:
             #print len(datum[0].getLeftPiles(0)),datum[0]
-            gridBoardLib[len(datum[0].getLeftPiles(0))][str(datum[0].getBoard())] += (STEP2 * datum[2] * label * (21 - len(datum[0].getLeftPiles(0))))
-    countOf += 1
+            for action in datum[0].getLegalActions(datum[1]):
+                actionlist.append(evalFunc(datum[0].generateSuccessor(datum[1], action), datum[1]))
+            if str(datum[0].getBoard()) not in gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))].keys():
+                storeState(datum[0], datum[1])
+                print "in"
+            gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))][str(datum[0].getBoard())] = (evalFunc(datum[0], datum[1]) + 0.9 * max(actionlist))
+    #countOf += 1
 
 def Learning(times, learningAgent="ReflexStateAgent", start = []):
         if not hasattr(AIagents, learningAgent) or not hasattr(getattr(AIagents, learningAgent), 'getAction'):
@@ -81,8 +89,9 @@ def Learning(times, learningAgent="ReflexStateAgent", start = []):
             	trainingDatas.append((record[-1], record[0], squareLost))
                 storeState(trainingDatas[-1][0], trainingDatas[-1][1])
             training(trainingDatas)
-
-        for i in range(3,21):
-            print gridBoardLib[i].values()
+         
+        for i in range(3,21):   
+            print gridBoardLib[0][i].values()
+            print gridBoardLib[1][i].values()
         f = open("g:\\shuju.txt","w")
         print >>f,gridBoardLib
