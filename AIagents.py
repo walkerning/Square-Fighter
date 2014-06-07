@@ -6,6 +6,7 @@ import game
 from game import printNotDefined,manhattanDistance
 from StateLearn import gameStateLib
 import random
+from qLearn import DATA_FILENAME
 
 class Agent(object):
     """
@@ -202,9 +203,37 @@ class ReflexAgent(Agent):
                 otherDetails += 10
     return gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[0]) - gameState.getScores(1 - self.index) - 2 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[0]) + otherDetails
 
+
+class qLearnAgent(Agent):
+    def __init__(self, index, xl = False):
+        Agent.__init__(self, index)
+
+        if not xl:
+            import cPickle
+            f = open(DATA_FILENAME)
+            try:
+                self.rawStateLib = cPickle.load(f)
+            except:
+                print "oops!"
+                import sys
+                sys.exit(0)
+            finally:
+                f.close()
+
+        self.xl = xl
+
+    def setLib(self, lib):
+        self.rawStateLib = lib
+
+    def getAction(self, gameState):
+        if not self.xl:
+            return max(gameState.getLegalActions(self.index), key = lambda action: self.rawStateLib[gameState.generateSuccessor(self.index, action)][self.index])
+        # 增加随机性
+        
 rlAgent = ReflexLinearAgent
 rAgent = ReflexAgent
 rsAgent = ReflexStateAgent
 defaultAgent = stupidReverseAgent
 abAgent = AlphaBetaAgent
 srAgent = stupidReverseAgent
+qlAgent = qLearnAgent

@@ -4,7 +4,7 @@
 import AIagents
 import game
 import gameRunner
-import loopLearn
+import loopLearn, qLearn
 import StateLearn
 
 def default(string):
@@ -57,6 +57,8 @@ def runGames(agents, numGames, record, switch, learn, learn_index):
             Learning = loopLearn.Learning
         elif learn_index == 1:
             Learning = StateLearn.Learning
+        elif learn_index == 2:
+            Learning = qLearn.Learning
         else:
             print "index %d did not refer to any learning algorithm"%learn_index
             return

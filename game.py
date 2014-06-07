@@ -83,6 +83,9 @@ class GridBoard:
         out = [[numToStr(self.data[x][y])[0] for y in range(self.size)] for x in range(self.size)]
         return '\n'.join([''.join(x) for x in out])
 
+    def __hash__(self):
+        return hash(self.__str__())
+
     def __eq__(self, other):
         if other == None: return False
         return self.data == other.data
@@ -90,6 +93,12 @@ class GridBoard:
     def copy(self):
         g = GridBoard(self.size)
         g.data = [x[:] for x in self.data]
+        return g
+
+    def getReverseBoard(self):
+        g = GridBoard(self.size)
+        tmp_dict = {1:0, 0:1, -1:-1}
+        g.data = [[tmp_dict[i] for i in x] for x in self.data]
         return g
 
     def deepCopy(self):
@@ -175,6 +184,9 @@ class GameState:
             score += PileSquareNumberList[self.data.leftPileList[index][i]]
         return score
 
+    def getBoard(self):
+        return self.data.boardData
+
     def generateSuccessor(self, index, action):
         """Check the legality of the specific action of player <index>, if it's legal generate the successor state"""
         if action not in self.getLegalActions(index):
@@ -185,6 +197,19 @@ class GameState:
         successor.data.generateNextStateData(index, action)
         return successor
 
+    def getReverseState(self):
+        reState = GameState()
+        reData = self.data.deepCopy()
+        reData.leftPileList.reverse()
+        reData.boardData = reData.boardData.getReverseBoard()
+        reState.data = reData
+        return reState
+
+    def __hash__(self):
+        return self.getBoard().__hash__()
+
+    def __eq__(self, other):
+        return self.getBoard() == other.getBoard()
     # --- helper function ---
     def _getAvailableAndImportantGrids(self, index):
         """Get all the grids that the player <index> can place a squre on. Get the list of import grids of player <index>, in which a legal placement must cover at least one"""
