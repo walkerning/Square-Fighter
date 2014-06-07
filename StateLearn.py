@@ -85,7 +85,7 @@ def Learning(times, learningAgent="ReflexStateAgent", start = []):
             else:
                 #utilityList = [LOSE_UTILITY - squareLost % 50, WIN_UTILITY + squareLost % 50]
                 utilityList = [LOSE_UTILITY, WIN_UTILITY]
-            for i in range(len(recordList), )
+#            for i in range(len(recordList), )
             recordList.pop()
             for i in range(len(recordList)):
                 record = recordList[i]

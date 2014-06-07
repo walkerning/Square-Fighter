@@ -10,7 +10,7 @@ TIE_UTILITY = 0
 LOSE_UTILITY = -50
 R = 0.8
 STEP = 0.0001
-FEATURES = ('impo_self','impo_oppo','square_self','square_oppo')
+FEATURES = ('impo_self','impo_oppo','square_self','square_oppo', 'diff_square')
 STARTING_WEIGHT = (0.9, -0.9, 1, -1)#0.5, -0.5, 1)
 
 def printResult(result, i = ''):
@@ -29,7 +29,7 @@ def extractFeatures(gameState, index):
     square_oppo = SQUARE_TOTAL - gameState.getScores(1 - index)
     diff_square = gameState.getScores(1 - index) - gameState.getScores(index)
     #return (impo_self, impo_oppo, avail_self, avail_oppo, diff_square)#print "extract feats", 
-    return (impo_self, impo_oppo, square_self, square_oppo)#diff_square)#avail_self, avail_oppo, diff_square)
+    return (impo_self, impo_oppo, square_self, square_oppo,diff_square)#avail_self, avail_oppo, diff_square)
 
 def evalFunc(gameState, index, weights):
     featureList = extractFeatures(gameState, index)
