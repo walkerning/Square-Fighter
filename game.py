@@ -178,6 +178,9 @@ class GameState:
     def getLeftPiles(self, index):
         return self.data.leftPileList[index][:]
 
+    def getBoard(self):
+        return self.data.boardData
+
     def getScores(self, index):
         score = 0
         for i in range(len(self.data.leftPileList[index])):

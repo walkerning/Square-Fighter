@@ -27,8 +27,8 @@ def extractFeatures(gameState, index):
     avail_oppo, impo_oppo = float(len(avail_oppo))/10, len(impo_oppo)
     square_self = SQUARE_TOTAL - gameState.getScores(index)
     square_oppo = SQUARE_TOTAL - gameState.getScores(1 - index)
-    #diff_square = gameState.getScores(1 - index) - gameState.getScores(index)
-    #print "extract feats", (impo_self, impo_oppo, avail_self, avail_oppo, diff_square)
+    diff_square = gameState.getScores(1 - index) - gameState.getScores(index)
+    #return (impo_self, impo_oppo, avail_self, avail_oppo, diff_square)#print "extract feats", 
     return (impo_self, impo_oppo, square_self, square_oppo)#diff_square)#avail_self, avail_oppo, diff_square)
 
 def evalFunc(gameState, index, weights):
@@ -51,7 +51,7 @@ def Training(trainingDatas, weights):
         for i in range(len(weights)):
             weights[i] += STEP * feats[i] * (R * newUti - nowUti)
 
-def Learning(times, learningAgent="ReflexLinearAgent", start = []):#[1.0516153729117497, -1.7406298037151497, 2.2668134620369664, -1.705074288351434]):
+def Learning(times, learningAgent="ReflexLinearAgent", start = [1.3290, -2.91247, 1.612913, -1.09355]):
         if not hasattr(AIagents, learningAgent) or not hasattr(getattr(AIagents, learningAgent), 'getAction'):
             printAgentError(learningAgent)
             learningAgent = "ReflexLinearAgent"
@@ -69,7 +69,7 @@ def Learning(times, learningAgent="ReflexLinearAgent", start = []):#[1.051615372
             game.startGame()
             recordList = copy.deepcopy(game.recordList)
 
-            #printResult(recordList[-1], str(i))
+            printResult(recordList[-1], str(i))
             if recordList[-1][1] == -1:
                 utilityList = [TIE_UTILITY, TIE_UTILITY]
             elif recordList[-1][1] == 0:
