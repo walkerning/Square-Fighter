@@ -125,7 +125,7 @@ class ReflexAgent(Agent):
     return - 5 * gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[1]) - 20 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[1]) + otherDetails
 
 
-from learn import extractFeatures, FEATURES, evalFunc
+from loopLearn import extractFeatures, FEATURES, evalFunc
 
 class ReflexLinearAgent(Agent):
     def __init__(self, index, evalFunc = evalFunc):

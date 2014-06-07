@@ -8,6 +8,7 @@ SQUARE_TOTAL = 89
 WIN_UTILITY = 50
 TIE_UTILITY = 0
 LOSE_UTILITY = -50
+R = 0.8
 STEP = 0.0001
 FEATURES = ('impo_self','impo_oppo','square_self','square_oppo')
 STARTING_WEIGHT = (0.9, -0.9, 1, -1)#0.5, -0.5, 1)
@@ -34,6 +35,11 @@ def evalFunc(gameState, index, weights):
     featureList = extractFeatures(gameState, index)
     return sum(map(lambda x, y: x * y, featureList, weights))
 
+def immediatePayback(gameState, index, action):
+    nextState = gameState.generateSuccessor(index, action)
+    (_, impo_oppo_next) = nextState._getAvailableAndImportantGrids(1 - index)
+    (_, impo_oppo) = gameState._getAvailableAndImportantGrids(index)
+    return impo_oppo - impo_oppo_next
 
 def Training(trainingDatas, weights):
     for datum in trainingDatas:
@@ -43,9 +49,9 @@ def Training(trainingDatas, weights):
 
         #print "cha:",newUti - nowUti
         for i in range(len(weights)):
-            weights[i] += STEP * feats[i] * (newUti - nowUti)
+            weights[i] += STEP * feats[i] * (R * newUti - nowUti)
 
-def Learning(times, learningAgent="ReflexLinearAgent", start = [1.0516153729117497, -1.7406298037151497, 2.2668134620369664, -1.705074288351434]):
+def Learning(times, learningAgent="ReflexLinearAgent", start = []):#[1.0516153729117497, -1.7406298037151497, 2.2668134620369664, -1.705074288351434]):
         if not hasattr(AIagents, learningAgent) or not hasattr(getattr(AIagents, learningAgent), 'getAction'):
             printAgentError(learningAgent)
             learningAgent = "ReflexLinearAgent"
@@ -75,7 +81,7 @@ def Learning(times, learningAgent="ReflexLinearAgent", start = [1.05161537291174
                 #utilityList = [LOSE_UTILITY - squareLost % 50, WIN_UTILITY + squareLost % 50]
                 utilityList = [LOSE_UTILITY, WIN_UTILITY]
             recordList.pop()
-            for i in range(len(recordList)/2, len(recordList)):
+            for i in range(0, len(recordList)):
                 record = recordList[i]
                 j = i
                 while True:
