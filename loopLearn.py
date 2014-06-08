@@ -17,7 +17,7 @@ def printResult(result, i = ''):
     if result[1] == -1:
         resultStr = "Tie!"
     else:
-        resultStr = "agent%d Win!"%(result[1] + 1)
+        resultStr = "agent%d Win!"%(result[1])
     print "No.%s: agent1 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
 
 def extractFeatures(gameState, index):

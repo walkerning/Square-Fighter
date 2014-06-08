@@ -99,6 +99,9 @@ class GridBoard:
         g = GridBoard(self.size)
         tmp_dict = {1:0, 0:1, -1:-1}
         g.data = [[tmp_dict[i] for i in x] for x in self.data]
+        for x in g.data:
+            x.reverse()
+        g.data.reverse()
         return g
 
     def deepCopy(self):
