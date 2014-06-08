@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 import gameRunner
 import AIagents
@@ -68,17 +68,17 @@ def Training(trainingDatas, RawStateLib, finalUtility):
         if not uPrimeList:
             uPrimeList = [0]
         if datum not in  RawStateLib:
-            if max(uPrimeList):
-                print max(uPrimeList)
+            #if max(uPrimeList):
+                #print max(uPrimeList)
             #RawStateLib[datum][playerIndex] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)
             #print "imm:", immediatePayback(datum, playerIndex)
-            RawStateLib[datum] = [immediatePayback(datum, playerIndex) + R * max(uPrimeList), -immediatePayback(datum, playerIndex)-R * max(uPrimeList)]
+            RawStateLib[datum] = [immediatePayback(datum, playerIndex) + R * max(uPrimeList),-immediatePayback(datum, playerIndex)-R * max(uPrimeList)]
             reDatum = datum.getReverseState()
             RawStateLib[reDatum] = [-R * max(uPrimeList) - immediatePayback(datum, playerIndex), immediatePayback(datum, playerIndex) + R * max(uPrimeList)]
         else:
             #要不要考虑一下用和为0的权值
-            if max(uPrimeList):
-                print max(uPrimeList)
+            #if max(uPrimeList):
+                #print max(uPrimeList)
             #print "imm:", immediatePayback(datum, playerIndex)
             RawStateLib[datum][0] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)#evalFunc(datum, 1, INI_WEIGHT)]
             RawStateLib[datum][1] = - RawStateLib[datum][0]
@@ -105,11 +105,11 @@ def Learning(times, learningAgent="qLearnAgent", start = StateLib(immediatePayba
         recordList = copy.deepcopy(game.recordList)
 
         printResult(recordList[-1], str(i))
-        import time, cPickle
-        filename = "qlearn--No.%d--"%i + time.strftime('%m-%d-%H-%M-%S',time.localtime(time.time())) + ".rep"
-        f = file(filename, 'w')
-        cPickle.dump(game.recordList, f)
-        f.close()
+        #import time, cPickle
+        #filename = "qlearn--No.%d--"%i + time.strftime('%m-%d-%H-%M-%S',time.localtime(time.time())) + ".rep"
+        #f = file(filename, 'w')
+        #cPickle.dump(game.recordList, f)
+        #f.close()
         if recordList[-1][1] == -1:
             utilityList = [TIE_UTILITY, TIE_UTILITY]
         elif recordList[-1][1] == 0:

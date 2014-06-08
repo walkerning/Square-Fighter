@@ -8,6 +8,8 @@ import random
 from qLearn import DATA_FILENAME
 import util
 
+DATA_FILENAMEFORSTATE = "g:\\shuju.txt"
+
 class Agent(object):
     """
     An agent must define the getAction method which will be called with a GameState argument.
@@ -47,11 +49,6 @@ class AlphaBetaAgent(Agent):
     def getAction(self, gameState):
         self.depth = 1
         def alphabeta(depth, gameState, agentIndex, alpha, beta):
-
-            if len(gameState.getLegalActions(self.index)) == 0 and gameState.getScores(self.index) > gameState.getScores(1 - self.index) :
-                return -999
-            if len(gameState.getLegalActions(1 - self.index)) == 0 and gameState.getScores(self.index) < gameState.getScores(1 - self.index) :
-                return 999
 
             if agentIndex == self.index:
                 v = -99999
@@ -189,13 +186,13 @@ class ReflexStateAgent(Agent):
                     bestaction = action
                     max = self.evalFunc(newgameState, self.index) * 1.9
                 '''
-                sumprob += (self.k ** (self.evalFunc(newgameState, self.index) * 1.9))
+                sumprob += (self.k ** self.evalFunc(newgameState, self.index))
         for action in legalaction:
             newgameState = gameState.generateSuccessor(self.index, action)
             if str(newgameState.getBoard()) in self.gameStateValue[self.index][leftnum - 1].keys():
                 dist[action] = (self.k ** self.gameStateValue[self.index][leftnum - 1][str(newgameState.getBoard())]) / sumprob
             else:
-                dist[action] = (self.k ** (self.evalFunc(newgameState, self.index) * 1.9)) / sumprob
+                dist[action] = (self.k ** self.evalFunc(newgameState, self.index)) / sumprob
 
         dist.normalize()
 
@@ -207,7 +204,7 @@ class ReflexLearnedAgent(Agent):
         Agent.__init__(self, index)
 
         import time, cPickle
-        f = open(DATA_FILENAME)
+        f = open(DATA_FILENAMEFORSTATE)
         try:
             self.gameStateValue = cPickle.load(f)
         except:
@@ -232,9 +229,9 @@ class ReflexLearnedAgent(Agent):
                     bestaction = action
                     max = self.gameStateValue[self.index][leftnum - 1][str(newgameState.getBoard())]
             else:
-                if self.evalFunc(newgameState, self.index) * 1.9 > max:
+                if self.evalFunc(newgameState, self.index) > max:
                     bestaction = action
-                    max = self.evalFunc(newgameState, self.index) * 1.9
+                    max = self.evalFunc(newgameState, self.index)
         return bestaction
 
 

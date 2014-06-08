@@ -45,14 +45,14 @@ def training(trainingDatas):
         #label = countOf
     trainingDatas.reverse()
     for datum in trainingDatas :
-        actionlist = [0]
+        #actionlist = [0]
         #if len(datum[0].getLeftPiles(datum[1])) <= 17:
             #print len(datum[0].getLeftPiles(0)),datum[0]
-        for action in datum[0].getLegalActions(datum[1]):
-            actionlist.append(gridBoradLib[datum[1]][datum[0].getLeftPiles(datum[1])-1][str(datum[0].generateSuccessor(datum[1], action).getBoard())])
+        #for action in datum[0].getLegalActions(datum[1]):
+            #actionlist.append(gridBoradLib[datum[1]][datum[0].getLeftPiles(datum[1])-1][str(datum[0].generateSuccessor(datum[1], action).getBoard())])
         if str(datum[0].getBoard()) not in gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))].keys():
             storeState(datum[0], datum[1])
-        gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))][str(datum[0].getBoard())] = (evalFunc(datum[0], datum[1]) + 0.9 * max(actionlist))
+        gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))][str(datum[0].getBoard())] += (datum[3][datum[1]] * datum[2] * STEP2)
     #countOf += 1
 
 def Learning(times, learningAgent="ReflexStateAgent", start = []):
@@ -89,7 +89,7 @@ def Learning(times, learningAgent="ReflexStateAgent", start = []):
             recordList.pop()
             for i in range(len(recordList)):
                 record = recordList[i]
-            	trainingDatas.append((record[-1], record[0], squareLost))
+            	trainingDatas.append((record[-1], record[0], squareLost, utilityList))
             training(trainingDatas)
          
         for i in range(3,21):   
