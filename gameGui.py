@@ -118,6 +118,7 @@ class GameRunnerGui(QWidget, Ui_GameWindow):
             try:
                 recordList = cPickle.load(f)
             except:
+                QMessageBox.warning(self, QString.fromUtf8("Error"), QString.fromUtf8("回放文件读取错误，请确定回放文件正确"), QMessageBox.Ok, QMessageBox.NoButton)
                 return
             finally:
                 f.close()

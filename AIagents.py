@@ -295,14 +295,14 @@ class qLearnAgent(Agent):
 
     def getAction(self, gameState):
         if not self.xl:
-            return max(gameState.getLegalActions(self.index), key = lambda action: self.rawStateLib[gameState.generateSuccessor(self.index, action)][self.index])
+            return max(gameState.getLegalActions(self.index), key = lambda action: (1 - 2 * self.index) * self.rawStateLib[gameState.generateSuccessor(self.index, action)])
         # 增加随机性
         sumprob = 0
         dist = util.Counter()
         for action in gameState.getLegalActions(self.index):
             newState = gameState.generateSuccessor(self.index, action)
             #sumprob += self.k ** self.rawStateLib[newState][self.index]
-            dist[action] = (self.k ** self.rawStateLib[newState][self.index])
+            dist[action] = (self.k ** ((1 - 2 * self.index) * self.rawStateLib[newState]))
         dist.normalize()
 
         return util.chooseFromDistribution( dist )

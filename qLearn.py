@@ -23,11 +23,8 @@ class StateLib(dict):
 
     def __getitem__(self, key):
         if key not in self:
-            #print "default evalfunc"
-            #return [self.evalFunc(key, i, INI_WEIGHT) for i in range(2)]
-            return [self.evalFunc(key, i) for i in range(2)]
+            return self.evalFunc(key, 0)
         else:
-            #print "key in!"
             return super(StateLib, self).__getitem__(key)
 
 def extractFeatures(gameState, index):
@@ -49,13 +46,12 @@ def immediatePayback(gameState, index):#, index, action):
     return impo_oppo - impo_oppo_next
 
 def evalFunc(gameState, index, weights):
-    #return 0
     featureList = extractFeatures(gameState, index)
     return sum(map(lambda x, y: x * y, featureList, weights))
 
 
 def Training(trainingDatas, RawStateLib, finalUtility):
-    RawStateLib[trainingDatas[0][0]] = finalUtility[:]
+    RawStateLib[trainingDatas[0][0]] = finalUtility[0]
     RawStateLib[trainingDatas[0][0].getReverseState()] = [finalUtility[1], finalUtility[0]]
     for i in range(1, len(trainingDatas)):
         datum = trainingDatas[i][0]
@@ -63,27 +59,11 @@ def Training(trainingDatas, RawStateLib, finalUtility):
         uPrimeList = []
         for action in datum.getLegalActions(playerIndex):
             newState = datum.generateSuccessor(playerIndex, action)
-            tmp = RawStateLib[newState][playerIndex]
+            tmp = (1 - 2 * playerIndex) * RawStateLib[newState]
             uPrimeList.append(tmp)
         #感觉需要两边对称更新才有用
-        #if not uPrimeList:
-            #uPrimeList = [0]
-        if datum not in  RawStateLib:
-            #RawStateLib[datum][playerIndex] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)
-            #print "imm:", immediatePayback(datum, playerIndex)
-            RawStateLib[datum] = [immediatePayback(datum, playerIndex) + R * max(uPrimeList), -immediatePayback(datum, playerIndex)-R * max(uPrimeList)]
-            #print "max uprime:", max(uPrimeList), "imm:", immediatePayback(datum, playerIndex) ,"new datum:",RawStateLib[datum]
-            reDatum = datum.getReverseState()
-            RawStateLib[reDatum] = [-R * max(uPrimeList) - immediatePayback(datum, playerIndex), immediatePayback(datum, playerIndex) + R * max(uPrimeList)]
-        else:
-            #if max(uPrimeList):
-            #print max(uPrimeList)
-            #print "imm:", immediatePayback(datum, playerIndex)
-            RawStateLib[datum][0] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)#evalFunc(datum, 1, INI_WEIGHT)]
-            RawStateLib[datum][1] = - RawStateLib[datum][0]
-            reDatum = datum.getReverseState()
-            RawStateLib[reDatum][1] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)
-            RawStateLib[reDatum][0] = - RawStateLib[reDatum][1]
+        RawStateLib[datum] = (1 - 2 * playerIndex) * (immediatePayback(datum, playerIndex) + R * max(uPrimeList))
+        RawStateLib[datum.getReverseState()] = -RawStateLib[datum]
 
 
 def Learning(times, learningAgent="qLearnAgent", learn_pattern = None, start_file = ''):
@@ -112,7 +92,7 @@ def Learning(times, learningAgent="qLearnAgent", learn_pattern = None, start_fil
         f = open(learn_pattern)
         magic_line = f.readline()
         if magic_line != MAGIC_STRING:
-            print "训练模式文件必须以'LEARN PATTERN FILE'作为第一行"
+            print "文件格式错误:训练模式文件必须以'LEARN PATTERN FILE'作为第一行"
             exit(0)
         import re
         x1 = re.compile(r'\s+')
@@ -178,11 +158,6 @@ def Learning(times, learningAgent="qLearnAgent", learn_pattern = None, start_fil
         recordList = copy.deepcopy(game.recordList)
 
         printResult(recordList[-1], str(i))
-        #import time, cPickle
-        #filename = "qlearn--No.%d--"%i + time.strftime('%m-%d-%H-%M-%S',time.localtime(time.time())) + ".rep"
-        #f = file(filename, 'w')
-        #cPickle.dump(game.recordList, f)
-        #f.close()
         if recordList[-1][1] == -1:
             utilityList = [TIE_UTILITY, TIE_UTILITY]
         elif recordList[-1][1] == 0:

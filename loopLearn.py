@@ -18,7 +18,7 @@ def printResult(result, i = ''):
         resultStr = "Tie!"
     else:
         resultStr = "agent%d Win!"%(result[1])
-    print "No.%s: agent1 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
+    print "No.%s: agent0 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
 
 def extractFeatures(gameState, index):
     avail_self, impo_self = gameState._getAvailableAndImportantGrids(index)

@@ -1,6 +1,9 @@
 LEARN PATTERN FILE
+5 1   'rlAgent'
+5 0   'rlAgent'
 2  1   'srAgent' 
 2  0   'srAgent'
+2
 2  0   'rlAgent'
 2  1   'rlAgent'
-2
+
