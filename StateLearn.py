@@ -11,7 +11,7 @@ WIN_UTILITY = 1
 TIE_UTILITY = 0
 LOSE_UTILITY = -1
 STEP1 = 0.01
-STEP2 = 0.0003
+STEP2 = 0.0001
 gridBoardLib = [[{} for x in range(21)] for y in range(2)]
 highestScore = 0
 #countOf = 1
@@ -55,7 +55,10 @@ def training(trainingDatas):
         gridBoardLib[datum[1]][len(datum[0].getLeftPiles(datum[1]))][str(datum[0].getBoard())] += (datum[3][datum[1]] * datum[2] * STEP2)
     #countOf += 1
 
-def Learning(times, learningAgent="ReflexStateAgent", start = []):
+def setgrid(grid):
+    gridBoardLib = grid
+
+def Learning(times, learningAgent="ReflexStateAgent", start = [], start_file = ''):
         if not hasattr(AIagents, learningAgent) or not hasattr(getattr(AIagents, learningAgent), 'getAction'):
             printAgentError(learningAgent)
             learningAgent = "ReflexStateAgent"
@@ -64,12 +67,24 @@ def Learning(times, learningAgent="ReflexStateAgent", start = []):
         
         agents = [agentClass(i, evalFunc) for i in range(2)]
 
+        if not start_file:
+            print "not"
+            setgrid([[{} for x in range(21)] for y in range(2)])
+        else:
+            import cPickle
+            f = open(start_file)
+            try:
+                setgrid(cPickle.load(f))
+            except:
+                print "load base file fail, fall back to empty base lib"
+                pass
+            finally:
+                f.close()
+
         for i in range(times):
             trainingDatas = []
             for agent in agents:
                 agent.setValue(gridBoardLib)
-                if i == times - 1:
-                    agent.setKValue(2)
             game = gameRunner.Game(agents, True)
             game.startGame()
             recordList = copy.deepcopy(game.recordList)
@@ -85,17 +100,18 @@ def Learning(times, learningAgent="ReflexStateAgent", start = []):
             else:
                 #utilityList = [LOSE_UTILITY - squareLost % 50, WIN_UTILITY + squareLost % 50]
                 utilityList = [LOSE_UTILITY, WIN_UTILITY]
-#            for i in range(len(recordList), )
             recordList.pop()
             for i in range(len(recordList)):
                 record = recordList[i]
             	trainingDatas.append((record[-1], record[0], squareLost, utilityList))
             training(trainingDatas)
+            import cPickle
+            f = open("g:\\shuju.txt","w")
+            cPickle.dump(gridBoardLib, f)
+            print "update"
+            f.close()
          
         for i in range(3,21):   
             print gridBoardLib[0][i].values()
             print gridBoardLib[1][i].values()
-        import cPickle
-        f = open("g:\\shuju.txt","w")
-        cPickle.dump(gridBoardLib, f)
-        f.close()
+        

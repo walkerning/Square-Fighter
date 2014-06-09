@@ -66,7 +66,7 @@ def Training(trainingDatas, RawStateLib, finalUtility):
         #if not uPrimeList:
             #uPrimeList = [0]
         if datum not in  RawStateLib:
-<<<<<<< HEAD
+
             #if max(uPrimeList):
                 #print max(uPrimeList)
             #RawStateLib[datum][playerIndex] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)
@@ -74,21 +74,23 @@ def Training(trainingDatas, RawStateLib, finalUtility):
             RawStateLib[datum] = [immediatePayback(datum, playerIndex) + R * max(uPrimeList),-immediatePayback(datum, playerIndex)-R * max(uPrimeList)]
             reDatum = datum.getReverseState()
             RawStateLib[reDatum] = [-R * max(uPrimeList) - immediatePayback(datum, playerIndex), immediatePayback(datum, playerIndex) + R * max(uPrimeList)]
-        else:
-            #要不要考虑一下用和为0的权值
-            #if max(uPrimeList):
-                #print max(uPrimeList)
-=======
-            #RawStateLib[datum][playerIndex] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)
-            #print "imm:", immediatePayback(datum, playerIndex)
-            RawStateLib[datum] = [immediatePayback(datum, playerIndex) + R * max(uPrimeList), -immediatePayback(datum, playerIndex)-R * max(uPrimeList)]
-            #print "max uprime:", max(uPrimeList), "imm:", immediatePayback(datum, playerIndex) ,"new datum:",RawStateLib[datum]
-            reDatum = datum.getReverseState()
-            RawStateLib[reDatum] = [-R * max(uPrimeList) - immediatePayback(datum, playerIndex), immediatePayback(datum, playerIndex) + R * max(uPrimeList)]
+            '''
+            else:
+                #要不要考虑一下用和为0的权值
+                #if max(uPrimeList):
+                    #print max(uPrimeList)
+
+                #RawStateLib[datum][playerIndex] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)
+                #print "imm:", immediatePayback(datum, playerIndex)
+                RawStateLib[datum] = [immediatePayback(datum, playerIndex) + R * max(uPrimeList), -immediatePayback(datum, playerIndex)-R * max(uPrimeList)]
+                #print "max uprime:", max(uPrimeList), "imm:", immediatePayback(datum, playerIndex) ,"new datum:",RawStateLib[datum]
+                reDatum = datum.getReverseState()
+                RawStateLib[reDatum] = [-R * max(uPrimeList) - immediatePayback(datum, playerIndex), immediatePayback(datum, playerIndex) + R * max(uPrimeList)]
+            '''
         else:
             #if max(uPrimeList):
             #print max(uPrimeList)
->>>>>>> origin/learning
+
             #print "imm:", immediatePayback(datum, playerIndex)
             RawStateLib[datum][0] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)#evalFunc(datum, 1, INI_WEIGHT)]
             RawStateLib[datum][1] = - RawStateLib[datum][0]

@@ -1,4 +1,5 @@
 LEARN PATTERN FILE
+<<<<<<< Updated upstream
 5 1   'rlAgent'
 5 0   'rlAgent'
 2  1   'srAgent' 
@@ -7,3 +8,10 @@ LEARN PATTERN FILE
 2  0   'rlAgent'
 2  1   'rlAgent'
 
+=======
+20  1   'srAgent' 
+20  0   'srAgent'
+20  0   'rlAgent'
+20  1   'rlAgent'
+20
+>>>>>>> Stashed changes

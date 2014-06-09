@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # AI agents
 
 
@@ -7,6 +7,7 @@ from game import printNotDefined,manhattanDistance
 import random
 from qLearn import DATA_FILENAME
 import util
+import time
 
 DATA_FILENAMEFORSTATE = "g:\\shuju.txt"
 
@@ -45,9 +46,15 @@ class AlphaBetaAgent(Agent):
 
         self.weights = (0.7317122, -1.951789, 0.1245964, -0.763426, 2.031588)
         self.evalFunc = evalFunc
+        self.count = 0
+        self.cut1 = 0
+        self.cut2 = 0
+        self.cut3 = 0
+        self.time1 = time.localtime(time.time())
+        self.time2 = 0
 
     def getAction(self, gameState):
-        self.depth = 1
+        self.depth = 2
         def alphabeta(depth, gameState, agentIndex, alpha, beta):
 
             if agentIndex == self.index:
@@ -56,6 +63,8 @@ class AlphaBetaAgent(Agent):
                     for move in gameState.getLegalActions(agentIndex):
                         v = max(alphabeta(depth, gameState.generateSuccessor(agentIndex,move), 1 - agentIndex, alpha, beta), v)
                         if v >= beta:
+                            self.cut1 += 1
+                            print "cut1",self.cut1
                             return v
                         alpha = max(alpha,v)
                     return v
@@ -65,19 +74,33 @@ class AlphaBetaAgent(Agent):
                     for move in legalaction:
                         count += [alphabeta(depth, gameState.generateSuccessor(agentIndex,move), 1 - agentIndex, alpha, beta)]
                         if max(count) >= beta:
+                            self.cut2 += 1
+                            print "cut2",self.cut2
+                            self.time2 = time.localtime(time.time())
+                            f = open("g:\\cut.txt","w")
+                            print >>f,self.count," ",self.cut1," ",self.cut2," ",self.cut3," ",self.time1," ",self.time2
+                            f.close()
                             return move
+                    self.time2 = time.localtime(time.time())
+                    f = open("g:\\cut.txt","w")
+                    print >>f,self.count," ",self.cut1," ",self.cut2," ",self.cut3," ",self.time1," ",self.time2
+                    f.close()
                     return legalaction[count.index(max(count))]
 
             else:
                 depth -= 1
 
                 if depth == 0:
+                    self.count += 1
+                    print self.count
                     return self.evalFunc(gameState, self.index, self.weights)
 
                 v = 99999
                 for move in gameState.getLegalActions(agentIndex):
                     v = min(alphabeta(depth, gameState.generateSuccessor(agentIndex,move), 1 - agentIndex, alpha, beta), v)
                     if v <= alpha:
+                        self.cut3 += 1
+                        print "cut3",self.cut3
                         return v
                     beta = min(beta,v)
                 return v
@@ -178,7 +201,6 @@ class ReflexStateAgent(Agent):
                     bestaction = action
                     max = self.gameStateValue[self.index][leftnum - 1][str(newgameState.getBoard())]
                 '''
-                print "!!"
                 sumprob += (self.k ** self.gameStateValue[self.index][leftnum - 1][str(newgameState.getBoard())])
             else:
                 '''
@@ -186,13 +208,14 @@ class ReflexStateAgent(Agent):
                     bestaction = action
                     max = self.evalFunc(newgameState, self.index) * 1.9
                 '''
-                sumprob += (self.k ** self.evalFunc(newgameState, self.index))
+                sumprob += (self.k ** evalFunc(newgameState, self.index))
+
         for action in legalaction:
             newgameState = gameState.generateSuccessor(self.index, action)
             if str(newgameState.getBoard()) in self.gameStateValue[self.index][leftnum - 1].keys():
-                dist[action] = (self.k ** self.gameStateValue[self.index][leftnum - 1][str(newgameState.getBoard())]) / sumprob
+                dist[action] = float(self.k ** self.gameStateValue[self.index][leftnum - 1][str(newgameState.getBoard())]) / float(sumprob)
             else:
-                dist[action] = (self.k ** self.evalFunc(newgameState, self.index)) / sumprob
+                dist[action] = float(self.k ** evalFunc(newgameState, self.index)) / float(sumprob)
 
         dist.normalize()
 
@@ -202,7 +225,7 @@ class ReflexStateAgent(Agent):
 class ReflexLearnedAgent(Agent):
     def __init__(self, index, evalFunc = evalFunc):
         Agent.__init__(self, index)
-
+        
         import time, cPickle
         f = open(DATA_FILENAMEFORSTATE)
         try:
@@ -224,12 +247,13 @@ class ReflexLearnedAgent(Agent):
         for action in legalaction:
             newgameState = gameState.generateSuccessor(self.index, action)
             if str(newgameState.getBoard()) in self.gameStateValue[self.index][leftnum - 1].keys():
-                print "in"
+                #print "in"
                 if self.gameStateValue[self.index][leftnum - 1][str(newgameState.getBoard())] > max:
                     bestaction = action
                     max = self.gameStateValue[self.index][leftnum - 1][str(newgameState.getBoard())]
             else:
-                if self.evalFunc(newgameState, self.index) > max:
+                if evalFunc(newgameState, self.index) > max:
+                    #print "default"
                     bestaction = action
                     max = self.evalFunc(newgameState, self.index)
         return bestaction
