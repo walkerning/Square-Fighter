@@ -107,20 +107,7 @@ class AlphaBetaAgent(Agent):
 
         tmp = alphabeta(self.depth, gameState, self.index, -99999, 99999)
         return tmp
-    '''
-    def evaluationFunction(self, gameState):
-        theta = [0.5 for i in range(5)]
-        otherDetails = 0
-        singlegridlist = []
-        for grid in gameState._getAvailableAndImportantGrids(self.index)[0]:
-            if (grid[0] + 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] + 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] + 1) not in gameState._getAvailableAndImportantGrids(self.index)[0] and (grid[0] - 1, grid [1] - 1) not in gameState._getAvailableAndImportantGrids(self.index)[0]:
-                singlegridlist.append(grid)
-        for grid in singlegridlist:
-            for grid2 in singlegridlist[singlegridlist.index(grid):]:
-                if manhattanDistance(grid, grid2) == 2:
-                    otherDetails += 5
-        return - 5 * gameState.getScores(self.index) + len(gameState._getAvailableAndImportantGrids(self.index)[1]) - 30 * len(gameState._getAvailableAndImportantGrids(1 - self.index)[1]) + otherDetails
-    '''
+
 class ReflexAgent(Agent):
  
   def getAction(self, gameState):
@@ -161,7 +148,7 @@ class ReflexLinearAgent(Agent):
     def __init__(self, index, evalFunc = evalFunc):
         Agent.__init__(self, index)
 
-        self.weights = [0.902986552409241, -3.44081507944618, 1.9210094578349792, -1.4626332827670643]#(0.7317, -1.9518, 0.1246, -0.7634, 2.0316)#(1.0516153729117497, -1.7406298037151497, 2.2668134620369664, -1.705074288351434)#(0.80559, -1.96247, 1.05913, -0.49355)
+        self.weights = [-0.285, -4.237, 1.403, -2.01]#[0.902986552409241, -3.44081507944618, 1.9210094578349792, -1.4626332827670643]#(0.7317, -1.9518, 0.1246, -0.7634, 2.0316)#(1.0516153729117497, -1.7406298037151497, 2.2668134620369664, -1.705074288351434)#(0.80559, -1.96247, 1.05913, -0.49355)
         self.evalFunc = evalFunc
 
     def setWeight(self, weights):

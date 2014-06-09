@@ -74,7 +74,7 @@ def runGames(agents, numGames, record, switch, learn, learn_index, learn_pattern
     for i in range(len(agents)):
         agent = agents[i]
         if not hasattr(AIagents, agent) or not hasattr(getattr(AIagents, agent), 'getAction'):
-            printAgentError(agent)
+            game.printAgentError(agent)
             agent = "defaultAgent"
         agentList.append(getattr(AIagents, agent)(i))
 
