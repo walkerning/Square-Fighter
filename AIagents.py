@@ -138,7 +138,7 @@ class ReflexLinearAgent(Agent):
     def __init__(self, index, evalFunc = evalFunc):
         Agent.__init__(self, index)
 
-        self.weights = (0.7317, -1.9518, 0.1246, -0.7634, 2.0316)#(1.0516153729117497, -1.7406298037151497, 2.2668134620369664, -1.705074288351434)#(0.80559, -1.96247, 1.05913, -0.49355)
+        self.weights = [0.902986552409241, -3.44081507944618, 1.9210094578349792, -1.4626332827670643]#(0.7317, -1.9518, 0.1246, -0.7634, 2.0316)#(1.0516153729117497, -1.7406298037151497, 2.2668134620369664, -1.705074288351434)#(0.80559, -1.96247, 1.05913, -0.49355)
         self.evalFunc = evalFunc
 
     def setWeight(self, weights):
@@ -292,14 +292,14 @@ class qLearnAgent(Agent):
 
     def getAction(self, gameState):
         if not self.xl:
-            return max(gameState.getLegalActions(self.index), key = lambda action: self.rawStateLib[gameState.generateSuccessor(self.index, action)][self.index])
+            return max(gameState.getLegalActions(self.index), key = lambda action: (1 - 2 * self.index) * self.rawStateLib[gameState.generateSuccessor(self.index, action)])
         # 增加随机性
         sumprob = 0
         dist = util.Counter()
         for action in gameState.getLegalActions(self.index):
             newState = gameState.generateSuccessor(self.index, action)
             #sumprob += self.k ** self.rawStateLib[newState][self.index]
-            dist[action] = (self.k ** self.rawStateLib[newState][self.index])
+            dist[action] = (self.k ** ((1 - 2 * self.index) * self.rawStateLib[newState]))
         dist.normalize()
 
         return util.chooseFromDistribution( dist )

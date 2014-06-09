@@ -5,12 +5,12 @@ import AIagents
 import copy
 
 SQUARE_TOTAL = 89
-WIN_UTILITY = 50
+WIN_UTILITY = 30#50
 TIE_UTILITY = 0
-LOSE_UTILITY = -50
-R = 0.8
+LOSE_UTILITY = -30#-50
+R = 0.9
 STEP = 0.0001
-FEATURES = ('impo_self','impo_oppo','square_self','square_oppo', 'diff_square')
+FEATURES = ('impo_self','impo_oppo','square_self','square_oppo')#, 'diff_square')
 STARTING_WEIGHT = (0.9, -0.9, 1, -1)#0.5, -0.5, 1)
 
 def printResult(result, i = ''):
@@ -18,7 +18,7 @@ def printResult(result, i = ''):
         resultStr = "Tie!"
     else:
         resultStr = "agent%d Win!"%(result[1])
-    print "No.%s: agent1 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
+    print "No.%s: agent0 First: %s\n\tLeftSquares: %d -- %d"%(i, resultStr, result[-1][0], result[-1][1])
 
 def extractFeatures(gameState, index):
     avail_self, impo_self = gameState._getAvailableAndImportantGrids(index)
@@ -29,7 +29,7 @@ def extractFeatures(gameState, index):
     square_oppo = SQUARE_TOTAL - gameState.getScores(1 - index)
     diff_square = gameState.getScores(1 - index) - gameState.getScores(index)
     #return (impo_self, impo_oppo, avail_self, avail_oppo, diff_square)#print "extract feats", 
-    return (impo_self, impo_oppo, square_self, square_oppo,diff_square)#avail_self, avail_oppo, diff_square)
+    return (impo_self, impo_oppo, square_self, square_oppo)#,diff_square)#avail_self, avail_oppo, diff_square)
 
 def evalFunc(gameState, index, weights):
     featureList = extractFeatures(gameState, index)
@@ -49,9 +49,11 @@ def Training(trainingDatas, weights):
 
         #print "cha:",newUti - nowUti
         for i in range(len(weights)):
+            if i == 0 and feats[2] >= 50:
+                continue
             weights[i] += STEP * feats[i] * (R * newUti - nowUti)
 
-def Learning(times, learningAgent="ReflexLinearAgent", start = [1.3290, -2.91247, 1.612913, -1.09355]):
+def Learning(times, learningAgent="ReflexLinearAgent", start = [0.902986552409241, -3.44081507944618, 1.9210094578349792, -1.4626332827670643]):#[1.3290, -2.91247, 1.612913, -1.09355]):
         if not hasattr(AIagents, learningAgent) or not hasattr(getattr(AIagents, learningAgent), 'getAction'):
             printAgentError(learningAgent)
             learningAgent = "ReflexLinearAgent"
@@ -74,14 +76,14 @@ def Learning(times, learningAgent="ReflexLinearAgent", start = [1.3290, -2.91247
                 utilityList = [TIE_UTILITY, TIE_UTILITY]
             elif recordList[-1][1] == 0:
                 squareLost = game.leftSquares[1] - game.leftSquares[0]
-                #utilityList = [WIN_UTILITY + squareLost % 50, LOSE_UTILITY - squareLost % 50]
-                utilityList = [WIN_UTILITY, LOSE_UTILITY]
+                utilityList = [WIN_UTILITY - game.leftSquares[0] / 3.0, LOSE_UTILITY - game.leftSquares[1] / 3.0]
+                #utilityList = [WIN_UTILITY, LOSE_UTILITY]
             else:
                 squareLost = game.leftSquares[0] - game.leftSquares[1]
-                #utilityList = [LOSE_UTILITY - squareLost % 50, WIN_UTILITY + squareLost % 50]
-                utilityList = [LOSE_UTILITY, WIN_UTILITY]
+                utilityList = [LOSE_UTILITY - game.leftSquares[0]/3.0, WIN_UTILITY -game.leftSquares[1]/3.0]
+                #utilityList = [LOSE_UTILITY, WIN_UTILITY]
             recordList.pop()
-            for i in range(0, len(recordList)):
+            for i in range(len(recordList)/3, len(recordList)):
                 record = recordList[i]
                 j = i
                 while True:
