@@ -9,7 +9,7 @@ from qLearn import DATA_FILENAME
 import util
 import time
 
-DATA_FILENAMEFORSTATE = "g:\\shuju.txt"
+DATA_FILENAMEFORSTATE = "shuju.txt"
 
 class Agent(object):
     """
@@ -77,12 +77,12 @@ class AlphaBetaAgent(Agent):
                             self.cut2 += 1
                             print "cut2",self.cut2
                             self.time2 = time.localtime(time.time())
-                            f = open("g:\\cut.txt","w")
+                            f = open("cut.txt","w")
                             print >>f,self.count," ",self.cut1," ",self.cut2," ",self.cut3," ",self.time1," ",self.time2
                             f.close()
                             return move
                     self.time2 = time.localtime(time.time())
-                    f = open("g:\\cut.txt","w")
+                    f = open("cut.txt","w")
                     print >>f,self.count," ",self.cut1," ",self.cut2," ",self.cut3," ",self.time1," ",self.time2
                     f.close()
                     return legalaction[count.index(max(count))]
