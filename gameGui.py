@@ -114,9 +114,9 @@ class GameRunnerGui(QWidget, Ui_GameWindow):
         self.saveRecordButton.setEnabled(False)
         filename = QFileDialog.getOpenFileName(self, QString.fromUtf8("载入回放文件"), ".", "replay files(*.rep)")
         if filename:
-            f = open(filename)
+            f = open(filename, 'U')
             try:
-                recordList = cPickle.load(f)
+                recordList = cPickle.loads("".join(f.readlines()))
             except:
                 QMessageBox.warning(self, QString.fromUtf8("Error"), QString.fromUtf8("回放文件读取错误，请确定回放文件正确"), QMessageBox.Ok, QMessageBox.NoButton)
                 return
