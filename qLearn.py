@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 import gameRunner
 import AIagents
@@ -62,8 +62,47 @@ def Training(trainingDatas, RawStateLib, finalUtility):
             tmp = (1 - 2 * playerIndex) * RawStateLib[newState]
             uPrimeList.append(tmp)
         #感觉需要两边对称更新才有用
+        '''
+        <<<<<<< HEAD
+                #if not uPrimeList:
+                    #uPrimeList = [0]
+                if datum not in  RawStateLib:
+
+                    #if max(uPrimeList):
+                        #print max(uPrimeList)
+                    #RawStateLib[datum][playerIndex] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)
+                    #print "imm:", immediatePayback(datum, playerIndex)
+                    RawStateLib[datum] = [immediatePayback(datum, playerIndex) + R * max(uPrimeList),-immediatePayback(datum, playerIndex)-R * max(uPrimeList)]
+                    reDatum = datum.getReverseState()
+                    RawStateLib[reDatum] = [-R * max(uPrimeList) - immediatePayback(datum, playerIndex), immediatePayback(datum, playerIndex) + R * max(uPrimeList)]
+                    
+                    else:
+                        #要不要考虑一下用和为0的权值
+                        #if max(uPrimeList):
+                            #print max(uPrimeList)
+
+                        #RawStateLib[datum][playerIndex] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)
+                        #print "imm:", immediatePayback(datum, playerIndex)
+                        RawStateLib[datum] = [immediatePayback(datum, playerIndex) + R * max(uPrimeList), -immediatePayback(datum, playerIndex)-R * max(uPrimeList)]
+                        #print "max uprime:", max(uPrimeList), "imm:", immediatePayback(datum, playerIndex) ,"new datum:",RawStateLib[datum]
+                        reDatum = datum.getReverseState()
+                        RawStateLib[reDatum] = [-R * max(uPrimeList) - immediatePayback(datum, playerIndex), immediatePayback(datum, playerIndex) + R * max(uPrimeList)]
+                    
+                else:
+                    #if max(uPrimeList):
+                    #print max(uPrimeList)
+
+                    #print "imm:", immediatePayback(datum, playerIndex)
+                    RawStateLib[datum][0] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)#evalFunc(datum, 1, INI_WEIGHT)]
+                    RawStateLib[datum][1] = - RawStateLib[datum][0]
+                    reDatum = datum.getReverseState()
+                    RawStateLib[reDatum][1] = immediatePayback(datum, playerIndex) + R * max(uPrimeList)
+                    RawStateLib[reDatum][0] = - RawStateLib[reDatum][1]
+        =======
+        '''
         RawStateLib[datum] = (1 - 2 * playerIndex) * (immediatePayback(datum, playerIndex) + R * max(uPrimeList))
         RawStateLib[datum.getReverseState()] = -RawStateLib[datum]
+        
 
 
 def Learning(times, learningAgent="qLearnAgent", learn_pattern = None, start_file = ''):
